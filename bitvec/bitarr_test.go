@@ -1,14 +1,14 @@
 package bitvec_test
 
 import (
-	"bit-vector/bitvec"
+	"4420project/bitvec"
 	"fmt"
 	"testing"
 )
 
 func TestBitArr(t *testing.T) {
 	bitArr, err := bitvec.NewBitArr("00000")
-	if err != nil{
+	if err != nil {
 		t.Error(err)
 	}
 	bitArr.Set1(0)

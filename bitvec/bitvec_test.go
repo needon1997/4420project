@@ -1,7 +1,7 @@
 package bitvec_test
 
 import (
-	bitvec2 "bit-vector/bitvec"
+	bitvec2 "4420project/bitvec"
 	"fmt"
 	"math/rand"
 	"testing"
