@@ -163,3 +163,14 @@ func (this *BitArr) RangeRank1(start int, end int) int {
 func (this *BitArr) Rank1(index int) int {
 	return index + 1 - this.Rank0(index)
 }
+func (this *BitArr) Pred1(index int) int {
+	for i := index; i >= 0; i-- {
+		if this.Get(i) == 1 {
+			return i
+		}
+	}
+	return 0
+}
+func (this *BitArr) Size() int {
+	return this.length
+}

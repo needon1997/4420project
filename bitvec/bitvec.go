@@ -124,23 +124,6 @@ func NewBasicBitVec(bitArr *BitArr) *BasicBitVector {
 			}
 			bv.subBlockRank.MapValueBounded(subBlockIndex*subBlockRankBitsNum, (1+subBlockIndex)*subBlockRankBitsNum-1, uint(subBlockRankVal))
 			subBlockIndex += 1
-			//subBlockBitLoopEnded := false
-			//for k := 1; k <= subBlockSize && !subBlockBitLoopEnded; k++ {
-			//	var subBlockBitRankVal int
-			//	if (i-1)*blockSize+(j-1)*subBlockSize+k < arrSize {
-			//		if (j-1)*subBlockSize+k < blockSize {
-			//			subBlockBitRankVal = bitArr.RangeRank1((i-1)*blockSize+(j-1)*subBlockSize, (i-1)*blockSize+(j-1)*subBlockSize+k-1)
-			//		} else {
-			//			subBlockBitRankVal = bitArr.RangeRank1((i-1)*blockSize+(j-1)*subBlockSize, i*blockSize-1)
-			//			subBlockBitLoopEnded = true
-			//		}
-			//	} else {
-			//		subBlockBitRankVal = bitArr.RangeRank1((i-1)*blockSize+(j-1)*subBlockSize, arrSize-1)
-			//		subBlockBitLoopEnded = true
-			//	}
-			//	bv.subBlockBitRank.MapValueBounded(subBlockBitIndex*subBlockBitRankBitsNum, (1+subBlockBitIndex)*subBlockBitRankBitsNum-1, uint(subBlockBitRankVal))
-			//	subBlockBitIndex += 1
-			//}
 			prevSubBlockRank = subBlockRankVal
 		}
 		prevBlockRank = blockRankVal

@@ -1,13 +1,50 @@
 package suffixArray
 
 import (
-	"fmt"
+	"4420project/waveletTree"
 	"math"
 )
 
 type SuffixArray struct {
 	Text string
 	POS  []int
+}
+
+func (this *SuffixArray) BwtTransform() (string, string) {
+	f := ""
+	l := ""
+	for i := 0; i < len(this.POS); i++ {
+		f = f + string(this.Text[this.POS[i]])
+		if this.POS[i] > 0 {
+			l = l + string(this.Text[this.POS[i]-1])
+		} else {
+			l = l + string(this.Text[len(this.Text)-1])
+		}
+	}
+	return f, l
+}
+
+func (this *SuffixArray) ToWTFMI() *WTFMI {
+	f, l := this.BwtTransform()
+	c := make([]*tuple, 1)
+	curChar := string(f[0])
+	c[0] = &tuple{key: curChar, index: 0}
+	for i := 1; i < len(f); i++ {
+		if curChar == string(f[i]) {
+			continue
+		} else {
+			curChar = string(f[i])
+			c = append(c, &tuple{curChar, i})
+		}
+	}
+	distinctString := make([]string, len(c))
+	charMap := make(map[string]int, len(c))
+	for i := 0; i < len(c); i++ {
+		distinctString[i] = c[i].key
+		charMap[c[i].key] = i
+	}
+	occ := waveletTree.NewWaveletTree(l, distinctString)
+	return &WTFMI{charMap: charMap, c: c, occ: occ, length: len(this.Text)}
 }
 
 func (this *SuffixArray) Search(w string) {
@@ -17,7 +54,7 @@ func (this *SuffixArray) Search(w string) {
 		Rw; i++ {
 		result, _ := this.compare(w, this.POS[Lw], 0)
 		if result == 0 {
-			fmt.Println(this.Text[this.POS[i] : this.POS[i]+len(w)])
+			//fmt.Println(this.Text[this.POS[i] : this.POS[i]+len(w)])
 		}
 	}
 }

@@ -84,7 +84,6 @@ func (this *SuffixTree) ToSuffixArray() *SuffixArray {
 	pos := make([]int, len(this.Text))
 	suffixArray.POS = pos
 	this.toSuffixArrayRecur(this.Root, "", index, &pos)
-	suffixArray.initLCP()
 	return suffixArray
 }
 
