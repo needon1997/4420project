@@ -2,7 +2,6 @@ package suffixArray
 
 import (
 	"4420project/bitvec"
-	"fmt"
 )
 
 type subString struct {
@@ -28,7 +27,7 @@ func createSuffixArrayRecur(text string) []int {
 		n := len(p)
 		for i := 0; i < n; i++ {
 			if p[i] != nil {
-				text1 += fmt.Sprint(p[i].name)
+				text1 += string(0 + byte(p[i].name))
 			}
 		}
 		newP := make([]*subString, len(text1))

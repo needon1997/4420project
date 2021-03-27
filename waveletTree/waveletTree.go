@@ -10,6 +10,9 @@ type WaveletTree struct {
 }
 
 func (this *WaveletTree) Rank(char string, index int) int {
+	if index < 0 {
+		return 0
+	}
 	return this.root.rRank(this.mapping[char], index)
 }
 func NewWaveletTree(text string, chars []string) *WaveletTree {

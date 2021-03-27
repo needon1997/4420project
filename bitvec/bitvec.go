@@ -30,6 +30,32 @@ type BasicBitVector struct {
 func (this *BasicBitVector) SizeOf() uintptr {
 	return unsafe.Sizeof(*this) + unsafe.Sizeof(*this.superBlockRank) + unsafe.Sizeof(*this.subBlockBitRank) + unsafe.Sizeof(*this.subBlockRank) + unsafe.Sizeof(*this.subBlockBitRankIndex)
 }
+
+func (this *BasicBitVector) Select1(j int) int {
+	s := 0
+	e := this.length
+	if j > this.Rank1(this.length-1) {
+		panic("invalid j")
+	}
+	i := (s + e) / 2
+	for true {
+		k := this.Rank1(i)
+		if k > j {
+			e = i
+		} else if k < j {
+			s = i
+		} else {
+			if i == 0 || this.Rank1(i-1) == j-1 {
+				return i
+			} else {
+				e = i
+			}
+		}
+		i = (s + e) / 2
+	}
+	return -1
+}
+
 func (this *BasicBitVector) Rank0(index int) int {
 	return index + 1 - this.Rank1(index)
 }

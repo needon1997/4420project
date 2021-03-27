@@ -1,6 +1,7 @@
 package suffixArray
 
 import (
+	"4420project/bitvec"
 	"4420project/waveletTree"
 	"math"
 )
@@ -23,7 +24,76 @@ func (this *SuffixArray) BwtTransform() (string, string) {
 	}
 	return f, l
 }
-
+func (this *SuffixArray) ToRLFMI() *RLFMI {
+	_, tbwt := this.BwtTransform()
+	S, B, B1, distinctChars, charMap, C := toRunLengthS(tbwt)
+	occ := waveletTree.NewWaveletTree(S, distinctChars)
+	return &RLFMI{length: len(this.Text), charMap: charMap, c: C, occ: occ, B: B, B1: B1}
+}
+func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBitVector, []string, map[string]int, []*tuple) {
+	S := ""
+	length := len(tbwt)
+	B := bitvec.NewBitArrBySize(length)
+	bitString := ""
+	lastChar := uint8(0)
+	lastStart := -1
+	distinctCharMap := make([]*[]int, 256)
+	for i := 0; i < length; i++ {
+		if distinctCharMap[tbwt[i]] == nil {
+			distinctCharMap[tbwt[i]] = new([]int)
+		}
+		if tbwt[i] == lastChar {
+			bitString += "0"
+			continue
+		} else {
+			if lastStart != -1 {
+				*distinctCharMap[tbwt[lastStart]] = append(*distinctCharMap[tbwt[lastStart]], lastStart)
+				*distinctCharMap[tbwt[lastStart]] = append(*distinctCharMap[tbwt[lastStart]], i-1)
+			}
+			B.Set1(i)
+			S += string(tbwt[i])
+			lastChar = tbwt[i]
+			bitString += "1"
+			lastStart = i
+		}
+	}
+	*distinctCharMap[tbwt[length-1]] = append(*distinctCharMap[tbwt[length-1]], lastStart)
+	*distinctCharMap[tbwt[length-1]] = append(*distinctCharMap[tbwt[length-1]], length-1)
+	B1 := bitvec.NewBitArrBySize(length)
+	j := 0
+	fS := ""
+	charMap := make(map[string]int)
+	distinctString := make([]string, 0)
+	m := 0
+	for i := 0; i < 256; i++ {
+		if distinctCharMap[i] != nil {
+			distinctString = append(distinctString, string(byte(i)))
+			charMap[string(byte(i))] = m
+			m++
+			for k := 0; k < len(*distinctCharMap[i]); k += 2 {
+				fS += string(byte(i))
+				B1.Set1(j)
+				j++
+				for l := (*distinctCharMap[i])[k] + 1; l <= (*distinctCharMap[i])[k+1]; l++ {
+					B1.Set0(j)
+					j++
+				}
+			}
+		}
+	}
+	c := make([]*tuple, 1)
+	curChar := string(fS[0])
+	c[0] = &tuple{key: curChar, index: 0}
+	for i := 1; i < len(fS); i++ {
+		if curChar == string(fS[i]) {
+			continue
+		} else {
+			curChar = string(fS[i])
+			c = append(c, &tuple{curChar, i})
+		}
+	}
+	return S, bitvec.NewBasicBitVec(B), bitvec.NewBasicBitVec(B1), distinctString, charMap, c
+}
 func (this *SuffixArray) ToWTFMI() *WTFMI {
 	f, l := this.BwtTransform()
 	c := make([]*tuple, 1)
@@ -38,7 +108,7 @@ func (this *SuffixArray) ToWTFMI() *WTFMI {
 		}
 	}
 	distinctString := make([]string, len(c))
-	charMap := make(map[string]int, len(c))
+	charMap := make(map[string]int)
 	for i := 0; i < len(c); i++ {
 		distinctString[i] = c[i].key
 		charMap[c[i].key] = i
@@ -47,16 +117,17 @@ func (this *SuffixArray) ToWTFMI() *WTFMI {
 	return &WTFMI{charMap: charMap, c: c, occ: occ, length: len(this.Text)}
 }
 
-func (this *SuffixArray) Search(w string) {
+func (this *SuffixArray) Search(w string) int {
+	sum := 0
 	Lw := this.getLw(w)
 	Rw := this.getRw(w)
-	for i := Lw; i <=
-		Rw; i++ {
+	for i := Lw; i <= Rw; i++ {
 		result, _ := this.compare(w, this.POS[Lw], 0)
 		if result == 0 {
-			//fmt.Println(this.Text[this.POS[i] : this.POS[i]+len(w)])
+			sum += 1
 		}
 	}
+	return sum
 }
 func (this *SuffixArray) getLw(w string) int {
 	var L int

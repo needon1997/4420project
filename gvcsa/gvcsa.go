@@ -39,16 +39,17 @@ func (this *GVCSArray) rlookup(i int, k int) int {
 
 }
 
-func (this *GVCSArray) Search(w string) {
+func (this *GVCSArray) Search(w string) int {
 	Lw := this.getLw(w)
 	Rw := this.getRw(w)
-	for i := Lw; i <=
-		Rw; i++ {
+	sum := 0
+	for i := Lw; i <= Rw; i++ {
 		result, _ := this.compare(w, this.Lookup(Lw), 0)
 		if result == 0 {
-			//fmt.Println(this.Text[this.Lookup(i) : this.Lookup(i)+len(w)])
+			sum += 1 //fmt.Println(this.Text[this.Lookup(i) : this.Lookup(i)+len(w)])
 		}
 	}
+	return sum
 }
 func (this *GVCSArray) getLw(w string) int {
 	var L int
