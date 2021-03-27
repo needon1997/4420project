@@ -23,12 +23,7 @@ func TestBasicBitVec(t *testing.T) {
 		r1 := bitvec.Rank1(i)
 		r2 := bitArr.Rank1(i)
 		if r1 != r2 {
-			t.Error("wrong")
-		}
-		i1 := bitvec.Select1(r1)
-		i2 := bitArr.Select1(r2)
-		if i1 != i2 {
-			t.Error("wrong")
+			t.Error("w")
 		}
 	}
 }

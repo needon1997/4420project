@@ -55,7 +55,7 @@ func NewEliasDeltaCoding(phi []int) *EliasDeltaCoding {
 		l := int(math.Log2(float64(n + 1)))
 		size += n + 2*l + 1
 	}
-	blockSize := 20 * int(math.Ceil(math.Log2(float64(size))))
+	blockSize := 100 * int(math.Ceil(math.Log2(float64(size))))
 	culSize := 0
 	head := make([]int, 0)
 	stream := make([]*bitvec.BasicBitVector, 0)
@@ -104,7 +104,7 @@ func EncodeIntArray(arr []int) *bitvec.BitArr {
 	return encoding
 }
 
-func DecodeIntArray(encoding *bitvec.BitArr) []int {
+func DecodeIntArray(encoding *bitvec.BasicBitVector) []int {
 	L := 0
 	arr := make([]int, 0)
 	for i := 0; i < encoding.Size(); {

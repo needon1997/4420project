@@ -24,7 +24,7 @@ func TestMakeGVCSArray(t *testing.T) {
 	fmt.Println(size.Of(tree))
 	fmt.Println(size.Of(sa))
 	fmt.Println(size.Of(gvcsArray))
-	fmt.Println(size.Of(sadcsArray))
+	fmt.Println(size.Of(sadcsArray.Phi[0]))
 	fmt.Println(size.Of(fmi))
 	fmt.Println(size.Of(rlfmi))
 	//for i := 0; i < 500; i++ {
