@@ -6,9 +6,9 @@ import (
 )
 
 type EliasDeltaCoding struct {
-	stream []*bitvec.BitArr
-	d      *bitvec.BitArr
-	e      *bitvec.BitArr
+	stream []*bitvec.BasicBitVector
+	d      *bitvec.BasicBitVector
+	e      *bitvec.BasicBitVector
 	head   []int
 }
 
@@ -58,7 +58,7 @@ func NewEliasDeltaCoding(phi []int) *EliasDeltaCoding {
 	blockSize := 20 * int(math.Ceil(math.Log2(float64(size))))
 	culSize := 0
 	head := make([]int, 0)
-	stream := make([]*bitvec.BitArr, 0)
+	stream := make([]*bitvec.BasicBitVector, 0)
 	e := bitvec.NewBitArrBySize(length)
 	head = append(head, phiCp[0])
 	e.Set1(0)
@@ -68,7 +68,7 @@ func NewEliasDeltaCoding(phi []int) *EliasDeltaCoding {
 		l := int(math.Log2(float64(n + 1)))
 		if culSize+n+2*l+1 > blockSize {
 			head = append(head, phiCp[i])
-			stream = append(stream, EncodeIntArray(phi[lastHead+1:i]))
+			stream = append(stream, bitvec.NewBasicBitVec(EncodeIntArray(phi[lastHead+1:i])))
 			e.Set1(i)
 			culSize = 0
 			lastHead = i
@@ -76,8 +76,10 @@ func NewEliasDeltaCoding(phi []int) *EliasDeltaCoding {
 			culSize += n + 2*l + 1
 		}
 	}
-	stream = append(stream, EncodeIntArray(phi[lastHead+1:length]))
-	return &EliasDeltaCoding{stream: stream, head: head, e: e, d: d}
+	evec := bitvec.NewBasicBitVec(e)
+	dvec := bitvec.NewBasicBitVec(d)
+	stream = append(stream, bitvec.NewBasicBitVec(EncodeIntArray(phi[lastHead+1:length])))
+	return &EliasDeltaCoding{stream: stream, head: head, e: evec, d: dvec}
 }
 
 func EncodeIntArray(arr []int) *bitvec.BitArr {

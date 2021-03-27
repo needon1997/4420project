@@ -30,12 +30,17 @@ type BasicBitVector struct {
 func (this *BasicBitVector) SizeOf() uintptr {
 	return unsafe.Sizeof(*this) + unsafe.Sizeof(*this.superBlockRank) + unsafe.Sizeof(*this.subBlockBitRank) + unsafe.Sizeof(*this.subBlockRank) + unsafe.Sizeof(*this.subBlockBitRankIndex)
 }
-
+func (this *BasicBitVector) Pred1(i int) int {
+	return this.Select1(this.Rank1(i))
+}
 func (this *BasicBitVector) Select1(j int) int {
 	s := 0
 	e := this.length
 	if j > this.Rank1(this.length-1) {
 		panic("invalid j")
+	}
+	if j == 0 {
+		return -1
 	}
 	i := (s + e) / 2
 	for true {
@@ -87,7 +92,7 @@ func NewBasicBitVec(bitArr *BitArr) *BasicBitVector {
 	blockSize := int(math.Ceil(math.Log2(float64(arrSize)) * math.Log2(float64(arrSize))))
 	blockNum := int(math.Ceil(float64(arrSize) / float64(blockSize)))
 
-	subBlockRankBitsNum := int(math.Ceil(math.Log2(float64(arrSize + 1))))
+	subBlockRankBitsNum := int(math.Ceil(math.Log2(float64(blockSize + 1))))
 	subBlockSize := int(math.Ceil(0.5 * math.Log2(float64(arrSize))))
 	subBlockNum := int(math.Ceil(float64(blockSize) / float64(subBlockSize)))
 	subBlockBitRankBitsNum := int(math.Ceil(math.Log2(float64(subBlockSize + 1))))
@@ -154,7 +159,6 @@ func NewBasicBitVec(bitArr *BitArr) *BasicBitVector {
 		}
 		prevBlockRank = blockRankVal
 	}
-
 	return bv
 }
 

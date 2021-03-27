@@ -165,6 +165,9 @@ func (this *BitArr) Rank1(index int) int {
 }
 func (this *BitArr) Select1(j int) int {
 	cul := 0
+	if j == 0 {
+		return 0
+	}
 	for i := 0; i < this.length; i++ {
 		if this.Get(i) == 1 {
 			cul++
@@ -181,7 +184,7 @@ func (this *BitArr) Pred1(index int) int {
 			return i
 		}
 	}
-	return 0
+	return -1
 }
 func (this *BitArr) Size() int {
 	return this.length

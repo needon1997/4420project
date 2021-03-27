@@ -7,14 +7,35 @@ import (
 )
 
 type SADCSArray struct {
-	length int
-	A      []int
-	Phi    []*EliasDeltaCoding
-	B      []*bitvec.BasicBitVector
-	D      *bitvec.BasicBitVector
-	C      []byte
+	length      int
+	A           []int
+	Phi         []*EliasDeltaCoding
+	B           []*bitvec.BasicBitVector
+	D           *bitvec.BasicBitVector
+	C           []byte
+	invSASample []int
 }
 
+func (this *SADCSArray) Locate(index int) int {
+	log2N := int(math.Ceil(math.Pow(math.Log2(float64(this.length)), 2)))
+	i := index / log2N
+	mod := index % log2N
+	if mod == 0 {
+		return this.invSASample[i]
+	} else {
+		index = index - mod
+		sa := this.invSASample[i]
+		for j := 0; j < mod; j++ {
+			sa = this.Phi[0].Get(sa)
+		}
+		return sa
+	}
+}
+func (this *SADCSArray) Substring(i, j int) string {
+	length := j - i
+	index := this.Locate(i)
+	return this.subString(index, length)
+}
 func (this *SADCSArray) Lookup(i int) int {
 	index := this.rlookup(i, 0)
 	if index < 0 {
@@ -147,27 +168,37 @@ func (this *SADCSArray) compare(a string, index int, from int) (result int, lcp 
 	return 0, p
 }
 func MakeSADCSArray(array suffixArray.SuffixArray) *SADCSArray {
-	csa := &SADCSArray{length: len(array.Text)}
-	h := int(math.Log2(math.Log2(float64(len(array.Text)))))
+	n := len(array.Text)
+	csa := &SADCSArray{length: n}
+	h := int(math.Log2(math.Log2(float64(n))))
 	phi := make([]*EliasDeltaCoding, h)
 	B := make([]*bitvec.BasicBitVector, h)
 	a := preprocessSADRecur(array.Text, array.POS, 0, phi, B, h)
 
-	D := bitvec.NewBitArrBySize(len(array.POS))
+	D := bitvec.NewBitArrBySize(n)
 	C := make([]byte, 0)
 	D.Set1(0)
 	C = append(C, array.Text[array.POS[0]])
-	for i := 1; i < len(array.POS); i++ {
+	for i := 1; i < n; i++ {
 		if array.Text[array.POS[i]] != array.Text[array.POS[i-1]] {
 			D.Set1(i)
 			C = append(C, array.Text[array.POS[i]])
 		}
 	}
+	log2N := int(math.Ceil(math.Pow(math.Log2(float64(n)), 2)))
+	invSASample := make([]int, int(math.Ceil(float64(n))/float64(log2N))+1)
+	for i := 0; i < n; i++ {
+		if array.POS[i]%log2N == 0 {
+			invSASample[array.POS[i]/log2N] = i
+		}
+	}
+
 	csa.A = a
 	csa.B = B
 	csa.Phi = phi
 	csa.C = C
 	csa.D = bitvec.NewBasicBitVec(D)
+	csa.invSASample = invSASample
 	return csa
 }
 
