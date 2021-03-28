@@ -1,6 +1,7 @@
 package suffixArray_test
 
 import (
+	"4420project/gvcsa"
 	"4420project/suffixArray"
 	"4420project/suffixTree"
 	"fmt"
@@ -15,16 +16,21 @@ func TestName(t *testing.T) {
 	sa2 := suffixArray.CreateSuffixArray(str)
 	rlfmi := sa2.ToRLFMI()
 	mtfmi := sa2.ToWTFMI()
+	sadcsa := gvcsa.MakeSADCSArray(*sa2)
+	gvcsa := gvcsa.MakeGVCSArray(*sa2)
 	fmt.Println(size.Of(str))
+	fmt.Println(size.Of(sa2))
 	fmt.Println(size.Of(rlfmi))
 	fmt.Println(size.Of(mtfmi))
-	for i := 0; i < 100000; i++ {
-		R1 := mtfmi.Locate(i)
-		R2 := sa2.POS[i]
-		if R1 != R2 {
-			t.Error("wrong")
-		}
-	}
+	fmt.Println(size.Of(sadcsa))
+	fmt.Println(size.Of(gvcsa))
+	//for i := 0; i < 100000; i++ {
+	//	R1 := rlfmi.Locate(i)
+	//	R2 := sa2.POS[i]
+	//	if R1 != R2 {
+	//		t.Error("wrong")
+	//	}
+	//}
 }
 
 func TestCreateSuffixArray(t *testing.T) {
@@ -38,4 +44,12 @@ func TestCreateSuffixArray(t *testing.T) {
 			t.Error("wrong")
 		}
 	}
+}
+
+func TestSuffixArray_BwtTransform(t *testing.T) {
+	str := "AGTAGTCAGTAC"
+	sa := suffixArray.CreateSuffixArray(str)
+	F, L := sa.BwtTransform()
+	fmt.Println(F)
+	fmt.Println(L)
 }

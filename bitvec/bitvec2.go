@@ -118,10 +118,10 @@ func (this *BasicBitVector) Rank1(index int) int {
 func NewBasicBitVec(b *BitArr) *BasicBitVector {
 	blockSize := subBlockSize * int(math.Log2(float64(b.length)))
 	blockNum := int(math.Ceil(float64(b.length) / float64(blockSize)))
-	blockRankBitsNum := int(math.Log2(float64(b.length + 1)))
+	blockRankBitsNum := int(math.Ceil(math.Log2(float64(b.length + 1))))
 	blockRank := NewBitArrBySize(blockNum * blockRankBitsNum)
 	subBlockNum := int(math.Log2(float64(b.length)))
-	subBlockRankBitsNum := int(math.Log2(float64(blockSize + 1)))
+	subBlockRankBitsNum := int(math.Ceil(math.Log2(float64(blockSize + 1))))
 	subBlockRank := NewBitArrBySize(int(math.Ceil(float64(b.length)/float64(subBlockSize))) * subBlockRankBitsNum)
 	subBlockIndex := 0
 	prevBlockRank := 0

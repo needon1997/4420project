@@ -3,6 +3,7 @@ package suffixArray
 import (
 	"4420project/bitvec"
 	"4420project/waveletTree"
+	"fmt"
 	"math"
 )
 
@@ -27,6 +28,7 @@ func (this *SuffixArray) BwtTransform() (string, string) {
 func (this *SuffixArray) ToRLFMI() *RLFMI {
 	_, tbwt := this.BwtTransform()
 	S, B, B1, distinctChars, charMap, C := toRunLengthS(tbwt)
+	fmt.Println(len(S) * 4)
 	occ := waveletTree.NewWaveletTree(S, distinctChars)
 	n := len(this.Text)
 	log2N := int(math.Ceil(math.Pow(math.Log2(float64(n)), 2)))
