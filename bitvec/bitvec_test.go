@@ -9,20 +9,23 @@ import (
 )
 
 func TestNewBasicBitVec(t *testing.T) {
-	bitArr := bitvec2.NewBitArrBySize(int(math.Pow(2, 20)))
+	bitArr := bitvec2.NewBitArrBySize(int(math.Pow(2, 18)))
 	bitvec := bitvec2.NewBasicBitVec(bitArr)
+	//obitvec := bitvec2.NewOneLevelBitVector(bitArr)
 	fmt.Println(size.Of(bitvec))
 	fmt.Println(size.Of(bitArr))
+	//fmt.Println(size.Of(obitvec))
 }
 
+//
 func TestBasicBitVec(t *testing.T) {
-	str := "00000000000000100000000101101101000001100100010010111011100011011111000001001101111000100100100010000111000110100110100100111010100101110010011101010110011101101110101111000100000100010101100011100110110101101001100001111000010111101010101110001100010100000101111000111000101011000001101110101001011000100010101111101101110111000100000001111001110011001011101101100011000100001101100100111000101001001011100110101110101111011100101111011011010000000010011000110001011001101001111100110100100000010000"
-	bitvec, _ := bitvec2.NewBasicBitVecFromString(str)
+	str := "1110111110000111111111"
 	bitArr, _ := bitvec2.NewBitArr(str)
+	o := bitvec2.NewBasicBitVec(bitArr)
 	for i := 0; i < len(str); i++ {
-		r1 := bitvec.Rank1(i)
-		r2 := bitArr.Rank1(i)
-		if r1 != r2 {
+		R1 := bitArr.Rank0(i)
+		R2 := o.Rank0(i)
+		if R1 != R2 {
 			t.Error("w")
 		}
 	}
