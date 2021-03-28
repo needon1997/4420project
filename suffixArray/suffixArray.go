@@ -28,9 +28,17 @@ func (this *SuffixArray) ToRLFMI() *RLFMI {
 	_, tbwt := this.BwtTransform()
 	S, B, B1, distinctChars, charMap, C := toRunLengthS(tbwt)
 	occ := waveletTree.NewWaveletTree(S, distinctChars)
-	return &RLFMI{length: len(this.Text), charMap: charMap, c: C, occ: occ, B: B, B1: B1}
+	n := len(this.Text)
+	log2N := int(math.Ceil(math.Pow(math.Log2(float64(n)), 2)))
+	SASample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
+	for i := 0; i < n; i++ {
+		if this.POS[i]%log2N == 0 {
+			SASample[i] = this.POS[i]
+		}
+	}
+	return &RLFMI{length: len(this.Text), charMap: charMap, c: C, occ: occ, B: B, B1: B1, SASample: SASample, distinctChars: distinctChars}
 }
-func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBitVector, []string, map[string]int, []*tuple) {
+func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBitVector, []string, map[string]int, []int) {
 	S := ""
 	length := len(tbwt)
 	B := bitvec.NewBitArrBySize(length)
@@ -81,40 +89,49 @@ func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBit
 			}
 		}
 	}
-	c := make([]*tuple, 1)
+	c := make([]int, 1)
 	curChar := string(fS[0])
-	c[0] = &tuple{key: curChar, index: 0}
+	c[0] = 0
 	for i := 1; i < len(fS); i++ {
 		if curChar == string(fS[i]) {
 			continue
 		} else {
 			curChar = string(fS[i])
-			c = append(c, &tuple{curChar, i})
+			c = append(c, i)
 		}
 	}
 	return S, bitvec.NewBasicBitVec(B), bitvec.NewBasicBitVec(B1), distinctString, charMap, c
 }
 func (this *SuffixArray) ToWTFMI() *WTFMI {
 	f, l := this.BwtTransform()
-	c := make([]*tuple, 1)
+	c := make([]int, 0)
+	distinctString := make([]string, 0)
 	curChar := string(f[0])
-	c[0] = &tuple{key: curChar, index: 0}
+	c = append(c, 0)
+	distinctString = append(distinctString, curChar)
 	for i := 1; i < len(f); i++ {
 		if curChar == string(f[i]) {
 			continue
 		} else {
 			curChar = string(f[i])
-			c = append(c, &tuple{curChar, i})
+			c = append(c, i)
+			distinctString = append(distinctString, curChar)
 		}
 	}
-	distinctString := make([]string, len(c))
 	charMap := make(map[string]int)
 	for i := 0; i < len(c); i++ {
-		distinctString[i] = c[i].key
-		charMap[c[i].key] = i
+		charMap[distinctString[i]] = i
 	}
 	occ := waveletTree.NewWaveletTree(l, distinctString)
-	return &WTFMI{charMap: charMap, c: c, occ: occ, length: len(this.Text)}
+	n := len(this.Text)
+	log2N := int(math.Ceil(math.Pow(math.Log2(float64(n)), 2)))
+	SASample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
+	for i := 0; i < n; i++ {
+		if this.POS[i]%log2N == 0 {
+			SASample[i] = this.POS[i]
+		}
+	}
+	return &WTFMI{charMap: charMap, c: c, occ: occ, length: len(this.Text), SASample: SASample}
 }
 
 func (this *SuffixArray) Search(w string) int {

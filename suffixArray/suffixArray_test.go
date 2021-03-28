@@ -18,9 +18,9 @@ func TestName(t *testing.T) {
 	fmt.Println(size.Of(str))
 	fmt.Println(size.Of(rlfmi))
 	fmt.Println(size.Of(mtfmi))
-	for i := 0; i < 300; i++ {
-		R1 := rlfmi.Search(str[0+i : 500+i])
-		R2 := mtfmi.Search(str[0+i : 500+i])
+	for i := 0; i < 100000; i++ {
+		R1 := mtfmi.Locate(i)
+		R2 := sa2.POS[i]
 		if R1 != R2 {
 			t.Error("wrong")
 		}

@@ -3,16 +3,11 @@ package bitvec_test
 import (
 	"4420project/bitvec"
 	"fmt"
+	"github.com/DmitriyVTitov/size"
 	"testing"
 )
 
 func TestBitArr(t *testing.T) {
-	bitArr, err := bitvec.NewBitArr("00000")
-	if err != nil {
-		t.Error(err)
-	}
-	bitArr.Set1(0)
-	bitArr.Set1(1)
-	bitArr.Set0(0)
-	fmt.Println(bitArr)
+	bitArr := bitvec.NewBitArrBySize(110016)
+	fmt.Println(size.Of(bitvec.NewBasicBitVec(bitArr)))
 }

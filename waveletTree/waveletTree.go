@@ -5,10 +5,15 @@ import (
 )
 
 type WaveletTree struct {
-	root    *waveletNode
-	mapping map[string]int
+	root       *waveletNode
+	mapping    map[string]int
+	invMapping map[int]string
 }
 
+func (this *WaveletTree) Get(index int) string {
+	encode := this.root.get(index)
+	return this.invMapping[encode]
+}
 func (this *WaveletTree) Rank(char string, index int) int {
 	if index < 0 {
 		return 0
@@ -16,9 +21,10 @@ func (this *WaveletTree) Rank(char string, index int) int {
 	return this.root.rRank(this.mapping[char], index)
 }
 func NewWaveletTree(text string, chars []string) *WaveletTree {
-	tree := &WaveletTree{root: nil, mapping: make(map[string]int, len(chars))}
+	tree := &WaveletTree{root: nil, mapping: make(map[string]int, len(chars)), invMapping: make(map[int]string, len(chars))}
 	for i := 0; i < len(chars); i++ {
 		tree.mapping[chars[i]] = i
+		tree.invMapping[i] = chars[i]
 	}
 	tree.root = newWaveletNode(text, tree.mapping)
 	return tree
@@ -66,6 +72,24 @@ type waveletNode struct {
 	rightChild *waveletNode
 }
 
+func (this *waveletNode) get(index int) int {
+	encode := this.binaryRank.Get(index)
+	if encode == 0 {
+		rank := this.binaryRank.Rank0(index)
+		if this.leftChild != nil {
+			return int(encode) + (this.leftChild.get(rank-1) << 1)
+		} else {
+			return int(encode)
+		}
+	} else {
+		rank := this.binaryRank.Rank1(index)
+		if this.rightChild != nil {
+			return int(encode) + (this.rightChild.get(rank-1) << 1)
+		} else {
+			return int(encode)
+		}
+	}
+}
 func (this *waveletNode) rRank(mapping int, index int) int {
 	var rank int
 	if mapping%2 == 0 {

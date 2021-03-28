@@ -43,6 +43,7 @@ func TestMakeGVCSArray(t *testing.T) {
 func TestEncodeIntArray(t *testing.T) {
 	buf, _ := ioutil.ReadFile("./test")
 	str := string(buf)
+	fmt.Println(size.Of(str))
 	sa := suffixArray.CreateSuffixArray(str)
 	sadcsArray := gvcsa.MakeSADCSArray(*sa)
 	for i := 0; i < 1000; i++ {

@@ -5,17 +5,31 @@ import (
 	"4420project/waveletTree"
 )
 
-type tuple struct {
-	key   string
-	index int
-}
 type WTFMI struct {
-	length  int
-	charMap map[string]int
-	c       []*tuple
-	occ     *waveletTree.WaveletTree
+	SASample map[int]int
+	length   int
+	charMap  map[string]int
+	c        []int
+	occ      *waveletTree.WaveletTree
 }
 
+func (this *WTFMI) Locate(index int) int {
+	v := 0
+	for {
+		i, ok := this.SASample[index]
+		if !ok {
+			index = this.LF(index)
+			v++
+		} else {
+			return i + v
+		}
+	}
+}
+
+func (this *WTFMI) LF(i int) int {
+	char := this.occ.Get(i)
+	return this.C(char) + this.OCC(char, i) - 1
+}
 func (this *WTFMI) OCC(str string, index int) int {
 	if index < 0 {
 		return 0
@@ -23,7 +37,7 @@ func (this *WTFMI) OCC(str string, index int) int {
 	return this.occ.Rank(str, index)
 }
 func (this *WTFMI) C(char string) int {
-	return this.c[this.charMap[char]].index
+	return this.c[this.charMap[char]]
 }
 func (this *WTFMI) Search(pattern string) int {
 	sp := 0
@@ -41,16 +55,37 @@ func (this *WTFMI) Search(pattern string) int {
 }
 
 type RLFMI struct {
-	length  int
-	charMap map[string]int
-	c       []*tuple
-	occ     *waveletTree.WaveletTree
-	B       *bitvec.BasicBitVector
-	B1      *bitvec.BasicBitVector
+	SASample      map[int]int
+	length        int
+	charMap       map[string]int
+	c             []int
+	distinctChars []string
+	occ           *waveletTree.WaveletTree
+	B             *bitvec.BasicBitVector
+	B1            *bitvec.BasicBitVector
+	D             *bitvec.BasicBitVector
+}
+
+func (this *RLFMI) Locate(index int) int {
+	v := 0
+	for {
+		i, ok := this.SASample[index]
+		if !ok {
+			index = this.LF(index)
+			v++
+		} else {
+			return i + v
+		}
+	}
+}
+func (this *RLFMI) LF(i int) int {
+	i1 := this.B.Rank1(i)
+	char := this.occ.Get(i1 - 1)
+	return this.B1.Select1(this.C(char)+1) + this.OCC(char, i) - 1
 }
 
 func (this *RLFMI) C(char string) int {
-	return this.c[this.charMap[char]].index
+	return this.c[this.charMap[char]]
 }
 
 func (this *RLFMI) OCC(c string, index int) int {
