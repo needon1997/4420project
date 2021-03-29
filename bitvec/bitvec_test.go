@@ -4,6 +4,7 @@ import (
 	bitvec2 "4420project/bitvec"
 	"fmt"
 	"github.com/DmitriyVTitov/size"
+	"io/ioutil"
 	"math"
 	"testing"
 )
@@ -17,16 +18,14 @@ func TestNewBasicBitVec(t *testing.T) {
 	//fmt.Println(size.Of(obitvec))
 }
 
-//
-func TestBasicBitVec(t *testing.T) {
-	str := "1110111110000111111111"
-	bitArr, _ := bitvec2.NewBitArr(str)
-	o := bitvec2.NewBasicBitVec(bitArr)
-	for i := 0; i < len(str); i++ {
-		R1 := bitArr.Rank0(i)
-		R2 := o.Rank0(i)
-		if R1 != R2 {
-			t.Error("w")
-		}
+var buf, _ = ioutil.ReadFile("./test")
+var str = string(buf)
+var bitArr, _ = bitvec2.NewBitArr(str)
+var o = bitvec2.NewBasicBitVec(bitArr)
+var l = o.Rank1(len(str) - 1)
+
+func BenchmarkName(b *testing.B) {
+	for i := 1; i < b.N; i++ {
+		o.Select1(int(math.Min(float64(i), float64(l-1))))
 	}
 }

@@ -1,7 +1,6 @@
 package suffixArray_test
 
 import (
-	"4420project/gvcsa"
 	"4420project/suffixArray"
 	"4420project/suffixTree"
 	"fmt"
@@ -14,23 +13,19 @@ func TestName(t *testing.T) {
 	buf, _ := ioutil.ReadFile("./test")
 	str := string(buf)
 	sa2 := suffixArray.CreateSuffixArray(str)
-	rlfmi := sa2.ToRLFMI()
+	//rlfmi := sa2.ToRLFMI()
 	mtfmi := sa2.ToWTFMI()
-	sadcsa := gvcsa.MakeSADCSArray(*sa2)
-	gvcsa := gvcsa.MakeGVCSArray(*sa2)
-	fmt.Println(size.Of(str))
-	fmt.Println(size.Of(sa2))
-	fmt.Println(size.Of(rlfmi))
+	//sadcsa := gvcsa.MakeSADCSArray(*sa2)
+	//gvcsa := gvcsa.MakeGVCSArray(*sa2)
+	//fmt.Println(size.Of(str))
+	//fmt.Println(size.Of(sa2))
+	//fmt.Println(size.Of(rlfmi))
 	fmt.Println(size.Of(mtfmi))
-	fmt.Println(size.Of(sadcsa))
-	fmt.Println(size.Of(gvcsa))
-	//for i := 0; i < 100000; i++ {
-	//	R1 := rlfmi.Locate(i)
-	//	R2 := sa2.POS[i]
-	//	if R1 != R2 {
-	//		t.Error("wrong")
-	//	}
-	//}
+	//fmt.Println(size.Of(sadcsa))
+	//fmt.Println(size.Of(gvcsa))
+	for i := 0; i < 100000; i++ {
+		_ = mtfmi.Search("AGTAGTCAGTACAGTAGTCAGTA")
+	}
 }
 
 func TestCreateSuffixArray(t *testing.T) {
@@ -49,7 +44,17 @@ func TestCreateSuffixArray(t *testing.T) {
 func TestSuffixArray_BwtTransform(t *testing.T) {
 	str := "AGTAGTCAGTAC"
 	sa := suffixArray.CreateSuffixArray(str)
-	F, L := sa.BwtTransform()
-	fmt.Println(F)
-	fmt.Println(L)
+	fmt.Println(sa.POS)
+	fmt.Println(sa.BwtTransform())
 }
+
+//var buf, _ = ioutil.ReadFile("./test")
+//var str = string(buf)
+//var sa2 = suffixArray.CreateSuffixArray(str)
+//var rlfmi = sa2.ToWTFMI()
+//var l = len(str)
+//func BenchmarkName(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		rlfmi.Search("AGTAGTCAGTACAGTAGTCAGTA")
+//	}
+//}

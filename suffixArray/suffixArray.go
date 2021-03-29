@@ -3,7 +3,6 @@ package suffixArray
 import (
 	"4420project/bitvec"
 	"4420project/waveletTree"
-	"fmt"
 	"math"
 )
 
@@ -13,38 +12,46 @@ type SuffixArray struct {
 }
 
 func (this *SuffixArray) BwtTransform() (string, string) {
-	f := ""
-	l := ""
+	f := make([]byte, len(this.POS))
+	l := make([]byte, len(this.POS))
 	for i := 0; i < len(this.POS); i++ {
-		f = f + string(this.Text[this.POS[i]])
+		f[i] = this.Text[this.POS[i]]
 		if this.POS[i] > 0 {
-			l = l + string(this.Text[this.POS[i]-1])
+			l[i] = this.Text[this.POS[i]-1]
 		} else {
-			l = l + string(this.Text[len(this.Text)-1])
+			l[i] = this.Text[len(this.Text)-1]
 		}
 	}
-	return f, l
+	return string(f), string(l)
 }
 func (this *SuffixArray) ToRLFMI() *RLFMI {
 	_, tbwt := this.BwtTransform()
 	S, B, B1, distinctChars, charMap, C := toRunLengthS(tbwt)
-	fmt.Println(len(S) * 4)
 	occ := waveletTree.NewWaveletTree(S, distinctChars)
 	n := len(this.Text)
 	log2N := int(math.Ceil(math.Pow(math.Log2(float64(n)), 2)))
+	//_ = int(math.Ceil(math.Log2(float64(n + 1))))
 	SASample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
 	for i := 0; i < n; i++ {
 		if this.POS[i]%log2N == 0 {
 			SASample[i] = this.POS[i]
 		}
 	}
-	return &RLFMI{length: len(this.Text), charMap: charMap, c: C, occ: occ, B: B, B1: B1, SASample: SASample, distinctChars: distinctChars}
+	InvSample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
+	for i := 0; i < n; i++ {
+		if this.POS[i]%log2N == 0 && this.POS[i] > 0 {
+			InvSample[this.POS[i]] = i
+		}
+		if this.POS[i] == n-1 {
+			InvSample[n-1] = i
+		}
+	}
+	return &RLFMI{length: len(this.Text), charMap: charMap, c: C, occ: occ, B: B, B1: B1, SASample: SASample, InvSample: InvSample, distinctChars: distinctChars}
 }
-func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBitVector, []string, map[string]int, []int) {
+func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBitVector, []byte, map[byte]int, []int) {
 	S := ""
 	length := len(tbwt)
 	B := bitvec.NewBitArrBySize(length)
-	bitString := ""
 	lastChar := uint8(0)
 	lastStart := -1
 	distinctCharMap := make([]*[]int, 256)
@@ -53,7 +60,6 @@ func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBit
 			distinctCharMap[tbwt[i]] = new([]int)
 		}
 		if tbwt[i] == lastChar {
-			bitString += "0"
 			continue
 		} else {
 			if lastStart != -1 {
@@ -63,7 +69,6 @@ func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBit
 			B.Set1(i)
 			S += string(tbwt[i])
 			lastChar = tbwt[i]
-			bitString += "1"
 			lastStart = i
 		}
 	}
@@ -72,13 +77,13 @@ func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBit
 	B1 := bitvec.NewBitArrBySize(length)
 	j := 0
 	fS := ""
-	charMap := make(map[string]int)
-	distinctString := make([]string, 0)
+	charMap := make(map[byte]int)
+	distinctString := make([]byte, 0)
 	m := 0
 	for i := 0; i < 256; i++ {
 		if distinctCharMap[i] != nil {
-			distinctString = append(distinctString, string(byte(i)))
-			charMap[string(byte(i))] = m
+			distinctString = append(distinctString, byte(i))
+			charMap[byte(i)] = m
 			m++
 			for k := 0; k < len(*distinctCharMap[i]); k += 2 {
 				fS += string(byte(i))
@@ -107,20 +112,20 @@ func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBit
 func (this *SuffixArray) ToWTFMI() *WTFMI {
 	f, l := this.BwtTransform()
 	c := make([]int, 0)
-	distinctString := make([]string, 0)
-	curChar := string(f[0])
+	distinctString := make([]byte, 0)
+	curChar := f[0]
 	c = append(c, 0)
 	distinctString = append(distinctString, curChar)
 	for i := 1; i < len(f); i++ {
-		if curChar == string(f[i]) {
+		if curChar == f[i] {
 			continue
 		} else {
-			curChar = string(f[i])
+			curChar = f[i]
 			c = append(c, i)
 			distinctString = append(distinctString, curChar)
 		}
 	}
-	charMap := make(map[string]int)
+	charMap := make(map[byte]int)
 	for i := 0; i < len(c); i++ {
 		charMap[distinctString[i]] = i
 	}
@@ -128,12 +133,18 @@ func (this *SuffixArray) ToWTFMI() *WTFMI {
 	n := len(this.Text)
 	log2N := int(math.Ceil(math.Pow(math.Log2(float64(n)), 2)))
 	SASample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
+	InvSample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
 	for i := 0; i < n; i++ {
 		if this.POS[i]%log2N == 0 {
 			SASample[i] = this.POS[i]
+			InvSample[this.POS[i]] = i
+
+		}
+		if this.POS[i] == n-1 {
+			InvSample[n-1] = i
 		}
 	}
-	return &WTFMI{charMap: charMap, c: c, occ: occ, length: len(this.Text), SASample: SASample}
+	return &WTFMI{charMap: charMap, c: c, occ: occ, length: len(this.Text), SASample: SASample, InvSample: InvSample}
 }
 
 func (this *SuffixArray) Search(w string) int {

@@ -5,17 +5,22 @@ import (
 )
 
 type subString struct {
-	name  int
-	start int
-	end   int
+	name  uint32
+	start uint32
+	end   uint32
 }
 
 func CreateSuffixArray(text string) *SuffixArray {
-	text = text + "$"
-	sa := createSuffixArrayRecur(text)
+	text = text + string(byte(1))
+	n := len(text)
+	modText := make([]uint32, len(text))
+	for i := 0; i < n; i++ {
+		modText[i] = uint32(text[i])
+	}
+	sa := createSuffixArrayRecur(modText)
 	return &SuffixArray{Text: text, POS: sa}
 }
-func createSuffixArrayRecur(text string) []int {
+func createSuffixArrayRecur(text []uint32) []int {
 	bucket := getBucket(text)
 	t := getType(text)
 	p := findLMSPtrArray(t)
@@ -23,11 +28,11 @@ func createSuffixArrayRecur(text string) []int {
 	nameP(p, sa, text, t)
 	unique, sa1 := checkUnique(p)
 	if !unique {
-		text1 := ""
+		text1 := make([]uint32, 0)
 		n := len(p)
 		for i := 0; i < n; i++ {
 			if p[i] != nil {
-				text1 += string(0 + byte(p[i].name))
+				text1 = append(text1, p[i].name)
 			}
 		}
 		newP := make([]*subString, len(text1))
@@ -49,21 +54,28 @@ func createSuffixArrayRecur(text string) []int {
 	sa = putBucket(text, p1, bucket, t)
 	return sa
 }
-func getBucket(text string) []int {
+func getBucket(text []uint32) []uint32 {
 	n := len(text)
-	bucket := make([]int, 256)
+	var max uint32 = 0
+	for i := 0; i < n; i++ {
+		if text[i] > max {
+			max = text[i]
+		}
+	}
+	bucket := make([]uint32, max+1)
 	for i := 0; i < n; i++ {
 		bucket[text[i]] = bucket[text[i]] + 1
 	}
-	culsum := 0
-	for i := 0; i < 256; i++ {
+	var culsum uint32 = 0
+	var i uint32 = 0
+	for ; i < max+1; i++ {
 		culsum = bucket[i] + culsum
 		bucket[i] = culsum - 1
 	}
 
 	return bucket
 }
-func getType(text string) *bitvec.BitArr {
+func getType(text []uint32) *bitvec.BitArr {
 	t := bitvec.NewBitArrBySize(len(text))
 	stype := true
 	t.Set1(len(text) - 1)
@@ -89,29 +101,27 @@ func findLMSPtrArray(t *bitvec.BitArr) []*subString {
 	lastlms := -1
 	for i := 1; i < size-1; i++ {
 		if t.Get(i) == 1 && t.Get(i-1) == 0 {
-			p[i] = &subString{start: i}
+			p[i] = &subString{start: uint32(i)}
 			if lastlms != -1 {
-				p[lastlms].end = i
+				p[lastlms].end = uint32(i)
 			}
 			lastlms = i
 		}
 	}
 	if lastlms != -1 {
-		p[lastlms].end = size - 1
+		p[lastlms].end = uint32(size - 1)
 	}
-	p[size-1] = &subString{start: size - 1, end: size - 1}
+	p[size-1] = &subString{start: uint32(size - 1), end: uint32(size - 1)}
 	return p
 }
-func putBucket(text string, p []*subString, bucket []int, t *bitvec.BitArr) []int {
-	bucketEnd := make([]int, 256)
+func putBucket(text []uint32, p []*subString, bucket []uint32, t *bitvec.BitArr) []int {
+	bucketEnd := make([]uint32, len(bucket))
 	copy(bucketEnd, bucket)
-
 	sa := make([]int, len(text))
 	n := len(sa)
-	bucketHead := make([]int, 256)
+	bucketHead := make([]uint32, len(bucket))
 	bucketHead[0] = 0
-
-	for i := 1; i < 256; i++ {
+	for i := 1; i < len(bucket); i++ {
 		bucketHead[i] = bucket[i-1] + 1
 	}
 	//step 1
@@ -120,7 +130,7 @@ func putBucket(text string, p []*subString, bucket []int, t *bitvec.BitArr) []in
 	}
 	for i := len(p) - 1; i >= 0; i-- {
 		if p[i] != nil {
-			sa[bucketEnd[text[p[i].start]]] = p[i].start
+			sa[bucketEnd[text[p[i].start]]] = int(p[i].start)
 			bucketEnd[text[p[i].start]]--
 		}
 	}
@@ -134,7 +144,7 @@ func putBucket(text string, p []*subString, bucket []int, t *bitvec.BitArr) []in
 			}
 		}
 	}
-	bucketEnd = make([]int, 256)
+	bucketEnd = make([]uint32, len(bucket))
 	copy(bucketEnd, bucket)
 	//step3
 	for i := n - 1; i >= 0; i-- {
@@ -150,17 +160,18 @@ func putBucket(text string, p []*subString, bucket []int, t *bitvec.BitArr) []in
 	return sa
 }
 
-func compareSubstring(a subString, b subString, text string, t *bitvec.BitArr) int {
-	size := 0
+func compareSubstring(a subString, b subString, text []uint32, t *bitvec.BitArr) int {
+	var size uint32 = 0
 	if a.end-a.start+1 > b.end-b.start+1 {
 		size = b.end - b.start + 1
 	} else {
 		size = a.end - a.start + 1
 	}
-	for i := 0; i < size; i++ {
+	var i uint32 = 0
+	for ; i < size; i++ {
 		if text[a.start+i] == text[b.start+i] {
-			atype := t.Get(a.start + i)
-			btype := t.Get(b.start + i)
+			atype := t.Get(int(a.start + i))
+			btype := t.Get(int(b.start + i))
 			if atype > btype {
 				return 1
 			} else if atype < btype {
@@ -174,9 +185,9 @@ func compareSubstring(a subString, b subString, text string, t *bitvec.BitArr) i
 	}
 	return 0
 }
-func nameP(p []*subString, sa []int, text string, t *bitvec.BitArr) {
+func nameP(p []*subString, sa []int, text []uint32, t *bitvec.BitArr) {
 	n := len(sa)
-	j := 0
+	var j uint32 = 0
 	lastlms := -1
 	for i := 0; i < n; i++ {
 		if p[sa[i]] != nil {

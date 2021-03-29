@@ -6,50 +6,45 @@ import (
 
 type WaveletTree struct {
 	root       *waveletNode
-	mapping    map[string]int
-	invMapping map[int]string
+	mapping    map[byte]int
+	invMapping map[int]byte
 }
 
-func (this *WaveletTree) Get(index int) string {
+func (this *WaveletTree) Get(index int) byte {
 	encode := this.root.get(index)
 	return this.invMapping[encode]
 }
-func (this *WaveletTree) Rank(char string, index int) int {
+func (this *WaveletTree) Rank(char byte, index int) int {
 	if index < 0 {
 		return 0
 	}
 	return this.root.rRank(this.mapping[char], index)
 }
-func NewWaveletTree(text string, chars []string) *WaveletTree {
-	tree := &WaveletTree{root: nil, mapping: make(map[string]int, len(chars)), invMapping: make(map[int]string, len(chars))}
+func NewWaveletTree(text string, chars []byte) *WaveletTree {
+	tree := &WaveletTree{root: nil, mapping: make(map[byte]int, len(chars)), invMapping: make(map[int]byte, len(chars))}
 	for i := 0; i < len(chars); i++ {
 		tree.mapping[chars[i]] = i
 		tree.invMapping[i] = chars[i]
 	}
-	tree.root = newWaveletNode(text, tree.mapping)
+	tree.root = newWaveletNode([]byte(text), tree.mapping)
 	return tree
 }
-func newWaveletNode(text string, mapping map[string]int) *waveletNode {
-	bitString := ""
-	leftString := ""
-	rightString := ""
-	leftMapping := make(map[string]int, 1)
-	rightMapping := make(map[string]int, 1)
+func newWaveletNode(text []byte, mapping map[byte]int) *waveletNode {
+	bitarr := bitvec.NewBitArrBySize(len(text))
+	leftString := make([]byte, 0)
+	rightString := make([]byte, 0)
+	leftMapping := make(map[byte]int, 1)
+	rightMapping := make(map[byte]int, 1)
 	for i := 0; i < len(text); i++ {
-		str := string(text[i])
+		str := text[i]
 		if mapping[str]%2 == 0 {
-			bitString = bitString + "0"
-			leftString += str
+			leftString = append(leftString, str)
 			leftMapping[str] = mapping[str] >> 1
 		} else {
-			bitString = bitString + "1"
-			rightString += str
+			bitarr.Set1(i)
+			rightString = append(rightString, str)
 			rightMapping[str] = mapping[str] >> 1
 		}
-	}
-	bitarr, err := bitvec.NewBitArr(bitString)
-	if err != nil {
-		panic(err)
 	}
 	bv := bitvec.NewBasicBitVec(bitarr)
 	node := &waveletNode{binaryRank: bv}

@@ -64,7 +64,13 @@ func ToBitArr(val uint) BitArr {
 	}
 	return BitArr{arr: arr, length: blockSize * 8}
 }
-
+func (this *BitArr) String() string {
+	str := ""
+	for i := 0; i < this.length; i++ {
+		str += fmt.Sprint(this.Get(i))
+	}
+	return str
+}
 func (this *BitArr) GetValueInRange(start, end int) uint {
 	if end < start {
 		panic("end < start")

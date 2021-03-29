@@ -1,6 +1,7 @@
 package bitvec
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -24,6 +25,13 @@ type BasicBitVector struct {
 	bitArr              *BitArr
 }
 
+func (this *BasicBitVector) String() string {
+	str := ""
+	for i := 0; i < this.length; i++ {
+		str += fmt.Sprint(this.Get(i))
+	}
+	return str
+}
 func (this *BasicBitVector) Get(i int) uint8 {
 	return this.bitArr.Get(i)
 }

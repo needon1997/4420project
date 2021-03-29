@@ -6,19 +6,48 @@ import (
 )
 
 type WTFMI struct {
-	SASample map[int]int
-	length   int
-	charMap  map[string]int
-	c        []int
-	occ      *waveletTree.WaveletTree
+	SASample  map[int]int
+	InvSample map[int]int
+	length    int
+	charMap   map[byte]int
+	c         []int
+	occ       *waveletTree.WaveletTree
 }
 
+func (this *WTFMI) Substring(start int, end int) string {
+	if end > this.length {
+		panic("index out of bound")
+	}
+	l := end - start
+	r := 0
+	var a int
+	for {
+		a1, ok := this.InvSample[end]
+		if !ok {
+			end = end + 1
+			r++
+		} else {
+			a = a1
+			break
+		}
+	}
+	for i := 0; i < r; i++ {
+		a, _ = this.LF(a)
+	}
+	str := ""
+	var char byte
+	for i := 0; i < l; i++ {
+		a, char = this.LF(a)
+		str = string(char) + str
+	}
+	return str
+}
 func (this *WTFMI) Locate(index int) int {
 	v := 0
 	for {
 		i, ok := this.SASample[index]
 		if !ok {
-			index = this.LF(index)
+			index, _ = this.LF(index)
 			v++
 		} else {
 			return i + v
@@ -26,17 +55,17 @@ func (this *WTFMI) Locate(index int) int {
 	}
 }
 
-func (this *WTFMI) LF(i int) int {
+func (this *WTFMI) LF(i int) (int, byte) {
 	char := this.occ.Get(i)
-	return this.C(char) + this.OCC(char, i) - 1
+	return this.C(char) + this.OCC(char, i) - 1, char
 }
-func (this *WTFMI) OCC(str string, index int) int {
+func (this *WTFMI) OCC(str byte, index int) int {
 	if index < 0 {
 		return 0
 	}
 	return this.occ.Rank(str, index)
 }
-func (this *WTFMI) C(char string) int {
+func (this *WTFMI) C(char byte) int {
 	return this.c[this.charMap[char]]
 }
 func (this *WTFMI) Search(pattern string) int {
@@ -44,7 +73,7 @@ func (this *WTFMI) Search(pattern string) int {
 	ep := this.length - 1
 	m := len(pattern)
 	for i := m - 1; i >= 0; i-- {
-		char := string(pattern[i])
+		char := pattern[i]
 		sp = this.C(char) + this.OCC(char, sp-1)
 		ep = this.C(char) + this.OCC(char, ep) - 1
 		if sp > ep {
@@ -56,39 +85,68 @@ func (this *WTFMI) Search(pattern string) int {
 
 type RLFMI struct {
 	SASample      map[int]int
+	InvSample     map[int]int
 	length        int
-	charMap       map[string]int
+	charMap       map[byte]int
 	c             []int
-	distinctChars []string
+	distinctChars []byte
 	occ           *waveletTree.WaveletTree
 	B             *bitvec.BasicBitVector
 	B1            *bitvec.BasicBitVector
 	D             *bitvec.BasicBitVector
 }
 
+func (this *RLFMI) Substring(start int, end int) string {
+	if end > this.length {
+		panic("index out of bound")
+	}
+	l := end - start
+	r := 0
+	var a int
+	for {
+		a1, ok := this.InvSample[end]
+		if !ok {
+			end = end + 1
+			r++
+		} else {
+			a = a1
+			break
+		}
+	}
+	for i := 0; i < r; i++ {
+		a, _ = this.LF(a)
+	}
+	str := ""
+	var char byte
+	for i := 0; i < l; i++ {
+		a, char = this.LF(a)
+		str = string(char) + str
+	}
+	return str
+}
 func (this *RLFMI) Locate(index int) int {
 	v := 0
 	for {
 		i, ok := this.SASample[index]
 		if !ok {
-			index = this.LF(index)
+			index, _ = this.LF(index)
 			v++
 		} else {
 			return i + v
 		}
 	}
 }
-func (this *RLFMI) LF(i int) int {
+func (this *RLFMI) LF(i int) (int, byte) {
 	i1 := this.B.Rank1(i)
 	char := this.occ.Get(i1 - 1)
-	return this.B1.Select1(this.C(char)+1) + this.OCC(char, i) - 1
+	return this.B1.Select1(this.C(char)+1) + this.OCC(char, i) - 1, char
 }
 
-func (this *RLFMI) C(char string) int {
+func (this *RLFMI) C(char byte) int {
 	return this.c[this.charMap[char]]
 }
 
-func (this *RLFMI) OCC(c string, index int) int {
+func (this *RLFMI) OCC(c byte, index int) int {
 	if index < 0 {
 		return 0
 	}
@@ -116,7 +174,7 @@ func (this *RLFMI) Search(pattern string) int {
 	ep := this.length - 1
 	m := len(pattern)
 	for i := m - 1; i >= 0; i-- {
-		char := string(pattern[i])
+		char := pattern[i]
 		j := this.B1.Select1(this.C(char) + 1)
 		sp = j + this.OCC(char, sp-1)
 		ep = j + this.OCC(char, ep) - 1
