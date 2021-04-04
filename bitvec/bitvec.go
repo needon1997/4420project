@@ -3,6 +3,7 @@ package bitvec
 //
 //
 //
+//
 //import (
 //	"math"
 //	"unsafe"

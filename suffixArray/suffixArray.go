@@ -49,7 +49,7 @@ func (this *SuffixArray) ToRLFMI() *RLFMI {
 	return &RLFMI{length: len(this.Text), charMap: charMap, c: C, occ: occ, B: B, B1: B1, SASample: SASample, InvSample: InvSample, distinctChars: distinctChars}
 }
 func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBitVector, []byte, map[byte]int, []int) {
-	S := ""
+	S := make([]byte, 0)
 	length := len(tbwt)
 	B := bitvec.NewBitArrBySize(length)
 	lastChar := uint8(0)
@@ -67,7 +67,7 @@ func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBit
 				*distinctCharMap[tbwt[lastStart]] = append(*distinctCharMap[tbwt[lastStart]], i-1)
 			}
 			B.Set1(i)
-			S += string(tbwt[i])
+			S = append(S, tbwt[i])
 			lastChar = tbwt[i]
 			lastStart = i
 		}
@@ -76,7 +76,7 @@ func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBit
 	*distinctCharMap[tbwt[length-1]] = append(*distinctCharMap[tbwt[length-1]], length-1)
 	B1 := bitvec.NewBitArrBySize(length)
 	j := 0
-	fS := ""
+	fS := make([]byte, 0)
 	charMap := make(map[byte]int)
 	distinctString := make([]byte, 0)
 	m := 0
@@ -86,7 +86,7 @@ func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBit
 			charMap[byte(i)] = m
 			m++
 			for k := 0; k < len(*distinctCharMap[i]); k += 2 {
-				fS += string(byte(i))
+				fS = append(fS, byte(i))
 				B1.Set1(j)
 				j++
 				for l := (*distinctCharMap[i])[k] + 1; l <= (*distinctCharMap[i])[k+1]; l++ {
@@ -107,7 +107,7 @@ func toRunLengthS(tbwt string) (string, *bitvec.BasicBitVector, *bitvec.BasicBit
 			c = append(c, i)
 		}
 	}
-	return S, bitvec.NewBasicBitVec(B), bitvec.NewBasicBitVec(B1), distinctString, charMap, c
+	return string(S), bitvec.NewBasicBitVec(B), bitvec.NewBasicBitVec(B1), distinctString, charMap, c
 }
 func (this *SuffixArray) ToWTFMI() *WTFMI {
 	f, l := this.BwtTransform()
@@ -148,16 +148,9 @@ func (this *SuffixArray) ToWTFMI() *WTFMI {
 }
 
 func (this *SuffixArray) Search(w string) int {
-	sum := 0
 	Lw := this.getLw(w)
 	Rw := this.getRw(w)
-	for i := Lw; i <= Rw; i++ {
-		result, _ := this.compare(w, this.POS[Lw], 0)
-		if result == 0 {
-			sum += 1
-		}
-	}
-	return sum
+	return Rw - Lw + 1
 }
 func (this *SuffixArray) getLw(w string) int {
 	var L int

@@ -156,7 +156,6 @@ func putBucket(text []uint32, p []*subString, bucket []uint32, t *bitvec.BitArr)
 			}
 		}
 	}
-	//step4
 	return sa
 }
 
