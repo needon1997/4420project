@@ -35,29 +35,42 @@ func newWaveletNode(text []byte, mapping []byte) *waveletNode {
 	rightString := make([]byte, 0)
 	leftMapping := make([]byte, 256)
 	rightMapping := make([]byte, 256)
-	leftTemp := make(map[byte]int, 1)
-	rightTemp := make(map[byte]int, 1)
+	leftTemp := make([]int, 256)
+	rightTemp := make([]int, 256)
+	leftCount := 0
+	rightCount := 0
+	for i := 0; i < 256; i++ {
+		leftTemp[i] = -1
+		rightTemp[i] = -1
+	}
 	for i := 0; i < len(text); i++ {
 		str := text[i]
 		if mapping[str]%2 == 0 {
 			leftString = append(leftString, str)
 			leftMapping[str] = mapping[str] >> 1
-			leftTemp[str] = 1
+			if leftTemp[str] != -1 {
+				leftCount += 1
+				leftTemp[str] = 1
+			}
 		} else {
 			bitarr.Set1(i)
 			rightString = append(rightString, str)
 			rightMapping[str] = mapping[str] >> 1
-			rightTemp[str] = i
+			rightTemp[str] = 1
+			if rightTemp[str] != -1 {
+				rightCount += 1
+				rightTemp[str] = 1
+			}
 		}
 	}
 	bv := bitvec.NewBasicBitVec(bitarr)
 	node := &waveletNode{binaryRank: bv}
-	if len(leftTemp) <= 1 {
+	if leftCount <= 1 {
 		node.leftChild = nil
 	} else {
 		node.leftChild = newWaveletNode(leftString, leftMapping)
 	}
-	if len(rightTemp) <= 1 {
+	if rightCount <= 1 {
 		node.rightChild = nil
 	} else {
 		node.rightChild = newWaveletNode(rightString, rightMapping)

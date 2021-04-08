@@ -6,21 +6,21 @@ import (
 	"math"
 )
 
-type BitArr2 struct {
+type BitArr struct {
 	arr    []uint32
 	length int
 }
 
-func NewBitArrBySize2(n int) *BitArr2 {
+func NewBitArrBySize(n int) *BitArr {
 	size := int(math.Ceil(float64(n) / float64(8)))
-	barr := BitArr2{arr: make([]uint32, size), length: n}
+	barr := BitArr{arr: make([]uint32, size), length: n}
 	return &barr
 }
 
-func NewBitArr2(bitString string) (*BitArr2, error) {
+func NewBitArr(bitString string) (*BitArr, error) {
 	l := len(bitString)
 	size := int(math.Ceil(float64(l) / float64(8)))
-	barr := BitArr2{arr: make([]uint32, size), length: l}
+	barr := BitArr{arr: make([]uint32, size), length: l}
 	for i := 0; i < l; i++ {
 		if bitString[i] == 48 {
 			barr.Set0(i)
@@ -33,7 +33,7 @@ func NewBitArr2(bitString string) (*BitArr2, error) {
 	return &barr, nil
 }
 
-func Value2(barr BitArr2) uint {
+func Value(barr BitArr) uint {
 	var val uint = 1
 	l := len(barr.arr)
 	var sum uint = 0
@@ -43,9 +43,9 @@ func Value2(barr BitArr2) uint {
 	}
 	return sum
 }
-func ToBitArr2(val uint) BitArr2 {
+func ToBitArr(val uint) BitArr {
 	if val == 0 {
-		return BitArr2{arr: make([]uint32, 1), length: 8}
+		return BitArr{arr: make([]uint32, 1), length: 8}
 	}
 	if val < 0 {
 		panic("not support")
@@ -62,16 +62,16 @@ func ToBitArr2(val uint) BitArr2 {
 		arr[i] = uint32(cval % base)
 		cval = cval >> 32
 	}
-	return BitArr2{arr: arr, length: blockSize * 32}
+	return BitArr{arr: arr, length: blockSize * 32}
 }
-func (this *BitArr2) String() string {
+func (this *BitArr) String() string {
 	str := ""
 	for i := 0; i < this.length; i++ {
 		str += fmt.Sprint(this.Get(i))
 	}
 	return str
 }
-func (this *BitArr2) GetValueInRange(start, end int) uint {
+func (this *BitArr) GetValueInRange(start, end int) uint {
 	if end < start {
 		panic("end < start")
 	} else if start < 0 {
@@ -95,7 +95,7 @@ func (this *BitArr2) GetValueInRange(start, end int) uint {
 	}
 	return val
 }
-func (this *BitArr2) MapValueBounded(start, end int, val uint) {
+func (this *BitArr) MapValueBounded(start, end int, val uint) {
 	if end < start {
 		panic("end < start")
 	}
@@ -113,7 +113,7 @@ func (this *BitArr2) MapValueBounded(start, end int, val uint) {
 		}
 	}
 }
-func (this *BitArr2) Get(i int) uint8 {
+func (this *BitArr) Get(i int) uint8 {
 	if i >= this.length || i < 0 {
 		fmt.Println("error")
 		panic("index out of bound")
@@ -126,7 +126,7 @@ func (this *BitArr2) Get(i int) uint8 {
 	return uint8(result)
 
 }
-func (this *BitArr2) Set1(i int) {
+func (this *BitArr) Set1(i int) {
 	if i >= this.length || i < 0 {
 		panic("index out of bound")
 	}
@@ -135,7 +135,7 @@ func (this *BitArr2) Set1(i int) {
 	ops := uint32(1) << (31 - index)
 	this.arr[superIndex] = this.arr[superIndex] | ops
 }
-func (this *BitArr2) Set0(i int) {
+func (this *BitArr) Set0(i int) {
 	if i >= this.length || i < 0 {
 		panic("index out of bound")
 	}
@@ -145,7 +145,7 @@ func (this *BitArr2) Set0(i int) {
 	this.arr[superIndex] = this.arr[superIndex] & ops
 }
 
-func (this *BitArr2) Rank0(index int) int {
+func (this *BitArr) Rank0(index int) int {
 	rank := 0
 	for i := 0; i <= index; i++ {
 		if this.Get(i) == 0 {
@@ -154,7 +154,7 @@ func (this *BitArr2) Rank0(index int) int {
 	}
 	return rank
 }
-func (this *BitArr2) RangeRank0(start int, end int) int {
+func (this *BitArr) RangeRank0(start int, end int) int {
 	rank := 0
 	for i := start; i <= end; i++ {
 		if this.Get(i) == 0 {
@@ -163,13 +163,13 @@ func (this *BitArr2) RangeRank0(start int, end int) int {
 	}
 	return rank
 }
-func (this *BitArr2) RangeRank1(start int, end int) int {
+func (this *BitArr) RangeRank1(start int, end int) int {
 	return end - start + 1 - this.RangeRank0(start, end)
 }
-func (this *BitArr2) Rank1(index int) int {
+func (this *BitArr) Rank1(index int) int {
 	return index + 1 - this.Rank0(index)
 }
-func (this *BitArr2) Select1(j int) int {
+func (this *BitArr) Select1(j int) int {
 	cul := 0
 	if j == 0 {
 		return 0
@@ -184,7 +184,7 @@ func (this *BitArr2) Select1(j int) int {
 	}
 	return -1
 }
-func (this *BitArr2) Pred1(index int) int {
+func (this *BitArr) Pred1(index int) int {
 	for i := index; i >= 0; i-- {
 		if this.Get(i) == 1 {
 			return i
@@ -192,6 +192,6 @@ func (this *BitArr2) Pred1(index int) int {
 	}
 	return -1
 }
-func (this *BitArr2) Size() int {
+func (this *BitArr) Size() int {
 	return this.length
 }

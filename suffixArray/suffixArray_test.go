@@ -44,11 +44,12 @@ var str = util.GenRandomStr(int(math.Pow(2, 20)), alphabet)
 //var sad = gvcsa.MakeSADCSArray(*sa2)
 //var l = len(str)
 
-//func BenchmarkNewSuffixArray(b *testing.B) {
-//	for i := 0; i < b.N; i++ {
-//		suffixArray.CreateSuffixArray(str)
-//	}
-//}
+func BenchmarkNewSuffixArray(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		suffixArray.CreateSuffixArray(str)
+	}
+}
+
 //func BenchmarkNewGVCSA(b *testing.B) {
 //	for i := 0; i < b.N; i++ {
 //		gvcsa.MakeGVCSArray(*suffixArray.CreateSuffixArray(str))
@@ -59,11 +60,11 @@ var str = util.GenRandomStr(int(math.Pow(2, 20)), alphabet)
 //		gvcsa.MakeSADCSArray(*suffixArray.CreateSuffixArray(str))
 //	}
 //}
-func BenchmarkNewWTFMI(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		suffixArray.CreateSuffixArray(str).ToWTFMI()
-	}
-}
+//func BenchmarkNewWTFMI(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		suffixArray.CreateSuffixArray(str).ToWTFMI()
+//	}
+//}
 
 //func BenchmarkNewRLFMI(b *testing.B) {
 //	for i := 0; i < b.N; i++ {
