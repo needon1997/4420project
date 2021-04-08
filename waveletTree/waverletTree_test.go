@@ -3,20 +3,17 @@ package waveletTree_test
 import (
 	"4420project/util"
 	"4420project/waveletTree"
+	"fmt"
+	"github.com/DmitriyVTitov/size"
 	"testing"
 )
 
 func TestNewWaveletTree(t *testing.T) {
-	var str = util.GenRandomStr(10000000, 4)
+	var str = util.GenRandomStr(100000, 4)
 	var tree1 = waveletTree.NewWaveletTree(str, []byte("abcd"))
 	var tree2 = waveletTree.NewWaveletTree2(str, []byte("abcd"))
-	for i := 0; i < 100; i++ {
-		r1 := tree1.Rank([]byte("a")[0], 10000)
-		r2 := tree2.Rank([]byte("a")[0], 10000)
-		if r1 != r2 {
-			t.Error("w")
-		}
-	}
+	fmt.Println(size.Of(tree1))
+	fmt.Println(size.Of(tree2))
 }
 
 var str = util.GenRandomStr(10000000, 4)

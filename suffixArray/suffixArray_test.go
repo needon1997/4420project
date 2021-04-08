@@ -1,38 +1,41 @@
 package suffixArray_test
 
 import (
-	"4420project/gvcsa"
 	"4420project/suffixArray"
 	"4420project/util"
+	"fmt"
+	"github.com/DmitriyVTitov/size"
 	"math"
 	"testing"
 )
 
-//func TestName(t *testing.T) {
-//	str := util.GenRandomStrRepeat(int(math.Pow(2, 20)), 26, 32)
-//	sa2 := suffixArray.CreateSuffixArray(str)
-//	//rlfmi := sa2.ToRLFMI()
-//	mtfmi := sa2.ToWTFMI()
-//	//sadcsa := gvcsa.MakeSADCSArray(*sa2)
-//	//gvcsa := gvcsa.MakeGVCSArray(*sa2)
-//	//fmt.Println(size.Of(str))
-//	//fmt.Println(size.Of(sa2))
-//	//fmt.Println(size.Of(rlfmi))
-//	fmt.Println(size.Of(mtfmi))
-//	//fmt.Println(size.Of(sadcsa))
-//	//fmt.Println(size.Of(gvcsa))
-//	for i := 0; i < 100000; i++ {
-//		r1 := mtfmi.Search(str[i : i+20])
-//		r2 := sa2.Search(str[i : i+20])
-//		if r1 != r2 {
-//			t.Error("w")
-//		}
-//	}
-//}
+func TestName(t *testing.T) {
+	str := util.GenRandomStr(int(math.Pow(2, 20)), 26)
+	sa2 := suffixArray.CreateSuffixArray(str)
+	//rlfmi := sa2.ToRLFMI()
+	mtfmi := sa2.ToWTFMI()
+	//sadcsa := gvcsa.MakeSADCSArray(*sa2)
+	//gvcsa := gvcsa.MakeGVCSArray(*sa2)
+	//fmt.Println(size.Of(str))
+	//fmt.Println(size.Of(sa2))
+	//fmt.Println(size.Of(rlfmi))
+	fmt.Println(size.Of(mtfmi))
+	//fmt.Println(size.Of(sadcsa))
+	//fmt.Println(size.Of(gvcsa))
+	for i := 0; i < 100000; i++ {
+		r1 := mtfmi.Search(str[i : i+20])
+		r2 := sa2.Search(str[i : i+20])
+		if r1 != r2 {
+			t.Error("w")
+		}
+	}
+}
 
-var alphabet = 4
-var str = util.GenRandomStr(int(math.Pow(2, 28)), alphabet)
+//
+var alphabet = 26
+var str = util.GenRandomStr(int(math.Pow(2, 20)), alphabet)
 
+//
 //var sa2 = suffixArray.CreateSuffixArray(str)
 //var wtfmi = sa2.ToWTFMI()
 //var rlfmi = sa2.ToRLFMI()
@@ -41,31 +44,32 @@ var str = util.GenRandomStr(int(math.Pow(2, 28)), alphabet)
 //var sad = gvcsa.MakeSADCSArray(*sa2)
 //var l = len(str)
 
-func BenchmarkNewSuffixArray(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		suffixArray.CreateSuffixArray(str)
-	}
-}
-func BenchmarkNewGVCSA(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		gvcsa.MakeGVCSArray(*suffixArray.CreateSuffixArray(str))
-	}
-}
-func BenchmarkNewSADCSA(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		gvcsa.MakeSADCSArray(*suffixArray.CreateSuffixArray(str))
-	}
-}
+//func BenchmarkNewSuffixArray(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		suffixArray.CreateSuffixArray(str)
+//	}
+//}
+//func BenchmarkNewGVCSA(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		gvcsa.MakeGVCSArray(*suffixArray.CreateSuffixArray(str))
+//	}
+//}
+//func BenchmarkNewSADCSA(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		gvcsa.MakeSADCSArray(*suffixArray.CreateSuffixArray(str))
+//	}
+//}
 func BenchmarkNewWTFMI(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		suffixArray.CreateSuffixArray(str).ToWTFMI()
 	}
 }
-func BenchmarkNewRLFMI(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		suffixArray.CreateSuffixArray(str).ToRLFMI()
-	}
-}
+
+//func BenchmarkNewRLFMI(b *testing.B) {
+//	for i := 0; i < b.N; i++ {
+//		suffixArray.CreateSuffixArray(str).ToRLFMI()
+//	}
+//}
 
 //func BenchmarkWTFMI_Locate(b *testing.B) {
 //	for i := 0; i < b.N; i++ {
