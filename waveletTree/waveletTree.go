@@ -89,7 +89,7 @@ func (this *waveletNode) rRank(mapping int, index int) int {
 	var rank int
 	if mapping%2 == 0 {
 		rank = this.binaryRank.Rank0(index)
-		if this.leftChild != nil {
+		if rank != 0 && this.leftChild != nil {
 			return this.leftChild.rRank(mapping>>1, rank-1)
 		} else {
 			return rank

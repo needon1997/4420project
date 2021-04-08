@@ -34,7 +34,7 @@ func (this *SADCSArray) Locate(index int) int {
 func (this *SADCSArray) Substring(i, j int) string {
 	length := j - i
 	index := this.Locate(i)
-	return this.subString(index, length)
+	return this.subString(index, length, 0)
 }
 func (this *SADCSArray) Lookup(i int) int {
 	index := this.rlookup(i, 0)
@@ -65,11 +65,13 @@ func (this *SADCSArray) rlookup(i int, k int) int {
 	}
 
 }
-func (this *SADCSArray) subString(index int, length int) string {
-	str := make([]byte, length)
-	for i := 0; i < length; i++ {
-		str[i] = this.C[this.D.Rank1(index)-1]
+func (this *SADCSArray) subString(index int, length int, from int) string {
+	for i := 0; i < from; i++ {
 		index = this.Phi[0].Get(index)
+	}
+	str := make([]byte, length)
+	for i := 0; i < length-from; i++ {
+		str[i] = this.C[this.D.Rank1(index)-1]
 	}
 	return string(str)
 }
@@ -154,9 +156,9 @@ func (this *SADCSArray) getRw(w string) int {
 }
 func (this *SADCSArray) compare(a string, index int, from int) (result int, lcp int) {
 	p := len(a)
-	str := this.subString(index, p)
+	str := this.subString(index, p, from)
 	for i := from; i < p; i++ {
-		c := str[i]
+		c := str[i-from]
 		if a[i] == c {
 			continue
 		} else if a[i] < c {

@@ -9,6 +9,13 @@ func GenRandomStr(length int, alphabet int) string {
 	}
 	return string(str)
 }
+func GenRandomBitStr(length int) string {
+	str := make([]byte, length)
+	for i := 0; i < length; i++ {
+		str[i] = byte(rand.Float64()*float64(2) + 48)
+	}
+	return string(str)
+}
 
 func GenRandomStrRepeat(length int, alphabet int, repeated int) string {
 	str := make([]byte, length)

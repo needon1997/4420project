@@ -2,6 +2,7 @@ package bitvec_test
 
 import (
 	bitvec2 "4420project/bitvec"
+	"4420project/util"
 	"fmt"
 	"github.com/DmitriyVTitov/size"
 	"math"
@@ -17,17 +18,17 @@ func TestNewBasicBitVec(t *testing.T) {
 	//fmt.Println(size.Of(obitvec))
 }
 
-//var buf, _ = ioutil.ReadFile("./test")
-//var str = string(buf)
-//var bitArr, _ = bitvec2.NewBitArr(str)
-//var o = bitvec2.NewBasicBitVec(bitArr)
-//var l = o.Rank1(len(str) - 1)
+var str = util.GenRandomBitStr(int(math.Pow(2, 20)))
+var bitArr, _ = bitvec2.NewBitArr(str)
+var o = bitvec2.NewBasicBitVec(bitArr)
+var l = len(str)
 
-//func BenchmarkName(b *testing.B) {
-//	for i := 1; i < b.N; i++ {
-//		o.Select1(int(math.Min(float64(i), float64(l-1))))
-//	}
-//}
+func BenchmarkName(b *testing.B) {
+	for i := 1; i < b.N; i++ {
+		j := i % l
+		o.Rank1(j)
+	}
+}
 
 func TestName(t *testing.T) {
 	str := ""
