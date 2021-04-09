@@ -31,16 +31,12 @@ import (
 var str = util.GenRandomBitStr(int(math.Pow(2, 20)))
 var bitArr, _ = bitvec.NewBitArr(str)
 var o = bitvec.NewBasicBitVec(bitArr)
-var l = len(str)
+var l = o.Rank1(len(str) - 1)
 
 func BenchmarkName(b *testing.B) {
 	for i := 1; i < b.N; i++ {
 		j := i % l
-		r1 := o.Rank1(j)
-		r2 := bitArr.Rank1(j)
-		if r1 != r2 {
-			print("wrong")
-		}
+		_ = o.Rank1(j)
 	}
 }
 

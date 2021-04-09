@@ -4,6 +4,7 @@ import (
 	"4420project/gvcsa"
 	"4420project/suffixArray"
 	"4420project/suffixTree"
+	"4420project/util"
 	"fmt"
 	"github.com/DmitriyVTitov/size"
 	"io/ioutil"
@@ -41,13 +42,12 @@ func TestMakeGVCSArray(t *testing.T) {
 }
 
 func TestEncodeIntArray(t *testing.T) {
-	buf, _ := ioutil.ReadFile("./test")
-	str := string(buf)
+	str := util.GenRandomStr(15, 3)
 	fmt.Println(size.Of(str))
 	sa := suffixArray.CreateSuffixArray(str)
-	sadcsArray := gvcsa.MakeSADCSArray(*sa)
-	for i := 0; i < 1000; i++ {
-		r1 := sadcsArray.Substring(i, i+3)
+	sad := gvcsa.MakeSADCSArray(*sa)
+	for i := 0; i < 10; i++ {
+		r1 := sad.Substring(i, i+3)
 		r2 := sa.Text[i : i+3]
 		if r1 != r2 {
 			t.Error("wrong")

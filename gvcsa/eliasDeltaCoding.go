@@ -6,7 +6,7 @@ import (
 )
 
 type EliasDeltaCoding struct {
-	stream []*bitvec.BasicBitVector
+	stream []*bitvec.BitArr
 	d      *bitvec.BasicBitVector
 	e      *bitvec.BasicBitVector
 	head   []int
@@ -31,14 +31,73 @@ func (this *EliasDeltaCoding) Get(index int) int {
 	return phi
 }
 
+//func NewEliasDeltaCoding(phi []int) *EliasDeltaCoding {
+//	length := len(phi)
+//	phiCp := make([]int, length)
+//	copy(phiCp, phi)
+//	d := bitvec.NewBitArrBySize(length)
+//	lastVal := phi[0]
+//	d.Set1(0)
+//	for i := 1; i < length; i++ {
+//		if lastVal < phi[i] {
+//			phi[i] = phi[i] + lastVal
+//			lastVal = phi[i] - lastVal
+//			phi[i] = phi[i] - lastVal
+//			phi[i] = lastVal - phi[i]
+//		} else {
+//			lastVal = phi[i]
+//			d.Set1(i)
+//		}
+//	}
+//	size := 0
+//	for i := 0; i < length; i++ {
+//		n := int(math.Log2(float64(phi[i] + 1)))
+//		l := int(math.Log2(float64(n + 1)))
+//		size += n + 2*l + 1
+//	}
+//	blockSize := 100 * int(math.Ceil(math.Log2(float64(size))))
+//	culSize := 0
+//	head := make([]int, 0)
+//	stream := make([]*bitvec.BasicBitVector, 0)
+//	e := bitvec.NewBitArrBySize(length)
+//	head = append(head, phiCp[0])
+//	e.Set1(0)
+//	lastHead := 0
+//	for i := 1; i < length; i++ {
+//		n := int(math.Log2(float64(phi[i] + 1)))
+//		l := int(math.Log2(float64(n + 1)))
+//		if culSize+n+2*l+1 > blockSize {
+//			head = append(head, phiCp[i])
+//			stream = append(stream, bitvec.NewBasicBitVec(EncodeIntArray(phi[lastHead+1:i])))
+//			e.Set1(i)
+//			culSize = 0
+//			lastHead = i
+//		} else {
+//			culSize += n + 2*l + 1
+//		}
+//	}
+//	evec := bitvec.NewBasicBitVec(e)
+//	dvec := bitvec.NewBasicBitVec(d)
+//	stream = append(stream, bitvec.NewBasicBitVec(EncodeIntArray(phi[lastHead+1:length])))
+//	return &EliasDeltaCoding{stream: stream, head: head, e: evec, d: dvec}
+//}
 func NewEliasDeltaCoding(phi []int) *EliasDeltaCoding {
 	length := len(phi)
-	phiCp := make([]int, length)
-	copy(phiCp, phi)
+	head := make([]int, 0)
 	d := bitvec.NewBitArrBySize(length)
+	e := bitvec.NewBitArrBySize(length)
+	stream := make([]*bitvec.BitArr, 0)
 	lastVal := phi[0]
 	d.Set1(0)
+	head = append(head, phi[0])
+	e.Set1(0)
+	logn := int(math.Ceil(math.Log2(float64(length))))
 	for i := 1; i < length; i++ {
+		if i%logn == 0 {
+			head = append(head, phi[i])
+			stream = append(stream, EncodeIntArray(phi[i-logn+1:i]))
+			e.Set1(i)
+		}
 		if lastVal < phi[i] {
 			phi[i] = phi[i] + lastVal
 			lastVal = phi[i] - lastVal
@@ -49,39 +108,13 @@ func NewEliasDeltaCoding(phi []int) *EliasDeltaCoding {
 			d.Set1(i)
 		}
 	}
-	size := 0
-	for i := 0; i < length; i++ {
-		n := int(math.Log2(float64(phi[i] + 1)))
-		l := int(math.Log2(float64(n + 1)))
-		size += n + 2*l + 1
-	}
-	blockSize := 100 * int(math.Ceil(math.Log2(float64(size))))
-	culSize := 0
-	head := make([]int, 0)
-	stream := make([]*bitvec.BasicBitVector, 0)
-	e := bitvec.NewBitArrBySize(length)
-	head = append(head, phiCp[0])
-	e.Set1(0)
-	lastHead := 0
-	for i := 1; i < length; i++ {
-		n := int(math.Log2(float64(phi[i] + 1)))
-		l := int(math.Log2(float64(n + 1)))
-		if culSize+n+2*l+1 > blockSize {
-			head = append(head, phiCp[i])
-			stream = append(stream, bitvec.NewBasicBitVec(EncodeIntArray(phi[lastHead+1:i])))
-			e.Set1(i)
-			culSize = 0
-			lastHead = i
-		} else {
-			culSize += n + 2*l + 1
-		}
-	}
 	evec := bitvec.NewBasicBitVec(e)
 	dvec := bitvec.NewBasicBitVec(d)
-	stream = append(stream, bitvec.NewBasicBitVec(EncodeIntArray(phi[lastHead+1:length])))
+	if logn*((length-1)/logn)+1 < length {
+		stream = append(stream, EncodeIntArray(phi[logn*((length-1)/logn)+1:length]))
+	}
 	return &EliasDeltaCoding{stream: stream, head: head, e: evec, d: dvec}
 }
-
 func EncodeIntArray(arr []int) *bitvec.BitArr {
 	length := len(arr)
 	size := 0
@@ -104,7 +137,7 @@ func EncodeIntArray(arr []int) *bitvec.BitArr {
 	return encoding
 }
 
-func DecodeIntArray(encoding *bitvec.BasicBitVector) []int {
+func DecodeIntArray(encoding *bitvec.BitArr) []int {
 	L := 0
 	arr := make([]int, 0)
 	for i := 0; i < encoding.Size(); {

@@ -6,7 +6,7 @@ import (
 
 type WaveletTree struct {
 	root       *waveletNode
-	mapping    []byte
+	mapping    []int
 	invMapping map[int]byte
 }
 
@@ -15,26 +15,29 @@ func (this *WaveletTree) Get(index int) byte {
 	return this.invMapping[encode]
 }
 func (this *WaveletTree) Rank(char byte, index int) int {
-	if index < 0 || this.mapping[char] == 0 {
+	if index < 0 || this.mapping[char] == -1 {
 		return 0
 	}
-	return this.root.rRank(this.mapping[char], index)
+	return this.root.rRank(byte(this.mapping[char]), index)
 }
 func NewWaveletTree(text string, chars []byte) *WaveletTree {
-	tree := &WaveletTree{root: nil, mapping: make([]byte, 256), invMapping: make(map[int]byte, len(chars))}
+	tree := &WaveletTree{root: nil, mapping: make([]int, 256), invMapping: make(map[int]byte, len(chars))}
+	for i := 0; i < 256; i++ {
+		tree.mapping[i] = -1
+	}
 	for i := 0; i < len(chars); i++ {
-		tree.mapping[chars[i]] = byte(i + 1)
-		tree.invMapping[i+1] = chars[i]
+		tree.mapping[chars[i]] = i
+		tree.invMapping[i] = chars[i]
 	}
 	tree.root = newWaveletNode([]byte(text), tree.mapping)
 	return tree
 }
-func newWaveletNode(text []byte, mapping []byte) *waveletNode {
+func newWaveletNode(text []byte, mapping []int) *waveletNode {
 	bitarr := bitvec.NewBitArrBySize(len(text))
 	leftString := make([]byte, 0)
 	rightString := make([]byte, 0)
-	leftMapping := make([]byte, 256)
-	rightMapping := make([]byte, 256)
+	leftMapping := make([]int, 256)
+	rightMapping := make([]int, 256)
 	leftTemp := make([]int, 256)
 	rightTemp := make([]int, 256)
 	leftCount := 0

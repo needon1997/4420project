@@ -12,7 +12,7 @@ type BitArr struct {
 }
 
 func NewBitArrBySize(n int) *BitArr {
-	size := int(math.Ceil(float64(n) / float64(8)))
+	size := int(math.Ceil(float64(n) / float64(32)))
 	barr := BitArr{arr: make([]uint32, size), length: n}
 	return &barr
 }

@@ -72,6 +72,7 @@ func (this *SADCSArray) subString(index int, length int, from int) string {
 	str := make([]byte, length)
 	for i := 0; i < length-from; i++ {
 		str[i] = this.C[this.D.Rank1(index)-1]
+		index = this.Phi[0].Get(index)
 	}
 	return string(str)
 }
