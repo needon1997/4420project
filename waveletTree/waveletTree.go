@@ -15,7 +15,7 @@ func (this *WaveletTree) Get(index int) byte {
 	return this.invMapping[encode]
 }
 func (this *WaveletTree) Rank(char byte, index int) int {
-	if index < 0 {
+	if index < 0 || this.mapping[char] == 0 {
 		return 0
 	}
 	return this.root.rRank(this.mapping[char], index)
@@ -23,8 +23,8 @@ func (this *WaveletTree) Rank(char byte, index int) int {
 func NewWaveletTree(text string, chars []byte) *WaveletTree {
 	tree := &WaveletTree{root: nil, mapping: make([]byte, 256), invMapping: make(map[int]byte, len(chars))}
 	for i := 0; i < len(chars); i++ {
-		tree.mapping[chars[i]] = byte(i)
-		tree.invMapping[i] = chars[i]
+		tree.mapping[chars[i]] = byte(i + 1)
+		tree.invMapping[i+1] = chars[i]
 	}
 	tree.root = newWaveletNode([]byte(text), tree.mapping)
 	return tree
@@ -48,7 +48,7 @@ func newWaveletNode(text []byte, mapping []byte) *waveletNode {
 		if mapping[str]%2 == 0 {
 			leftString = append(leftString, str)
 			leftMapping[str] = mapping[str] >> 1
-			if leftTemp[str] != -1 {
+			if leftTemp[str] == -1 {
 				leftCount += 1
 				leftTemp[str] = 1
 			}
@@ -56,8 +56,7 @@ func newWaveletNode(text []byte, mapping []byte) *waveletNode {
 			bitarr.Set1(i)
 			rightString = append(rightString, str)
 			rightMapping[str] = mapping[str] >> 1
-			rightTemp[str] = 1
-			if rightTemp[str] != -1 {
+			if rightTemp[str] == -1 {
 				rightCount += 1
 				rightTemp[str] = 1
 			}

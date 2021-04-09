@@ -82,9 +82,10 @@ func (this *BasicBitVector) Select1(j int) int {
 	}
 	j = j - int(l)
 	s = 0
+	var b uint32
 	for {
-		b := this.bitArr.arr[i*this.subBlockNum*4+s]
-		r := int(this.popc[b])
+		b = this.bitArr.arr[i*this.subBlockNum+s]
+		r := int(this.popc[uint8(b>>24)] + this.popc[uint8(b>>16)] + this.popc[uint8(b>>8)] + this.popc[uint8(b)])
 		if j-r <= 0 {
 			break
 		} else {
@@ -92,13 +93,24 @@ func (this *BasicBitVector) Select1(j int) int {
 		}
 		s++
 	}
+	var t = 0
+	for {
+		r := int(this.popc[uint8(b>>(24-t*8))])
+		if j-r <= 0 {
+			break
+		} else {
+			j = j - r
+		}
+		t++
+	}
+
 	for k := 0; k < 8; k++ {
-		bit := this.bitArr.Get(8*(i*this.subBlockNum*4+s) + k)
+		bit := this.bitArr.Get(this.subBlockSize*(i*this.subBlockNum+s) + t*8 + k)
 		if bit == 1 {
 			j = j - 1
 		}
 		if j == 0 {
-			return 8*(i*this.subBlockNum*4+s) + k
+			return this.subBlockSize*(i*this.subBlockNum+s) + t*8 + k
 		}
 	}
 	return j
