@@ -1,20 +1,29 @@
 package suffixArray_test
 
-//
-//func TestName(t *testing.T) {
-//	str := util.GenRandomStrRepeat(int(math.Pow(2, 20)), 26,32)
-//	sa2 := suffixArray.CreateSuffixArray(str)
-//	rlfmi := sa2.ToRLFMI()
-//	wtfmi := sa2.ToWTFMI()
-//	sadcsa := gvcsa.MakeSADCSArray(*sa2)
-//	gvcsa := gvcsa.MakeGVCSArray(*sa2)
-//	fmt.Println(size.Of(str))
-//	fmt.Println(size.Of(sa2))
-//	fmt.Println(size.Of(rlfmi))
-//	fmt.Println(size.Of(wtfmi))
-//	fmt.Println(size.Of(sadcsa))
-//	fmt.Println(size.Of(gvcsa))
-//}
+import (
+	"4420project/gvcsa"
+	"4420project/suffixArray"
+	"4420project/util"
+	"fmt"
+	"github.com/DmitriyVTitov/size"
+	"math"
+	"testing"
+)
+
+func TestName(t *testing.T) {
+	str := util.GenRandomStr(int(math.Pow(2, 20)), 4)
+	sa2 := suffixArray.CreateSuffixArray(str)
+	rlfmi := sa2.ToRLFMI()
+	wtfmi := sa2.ToWTFMI()
+	sadcsa := gvcsa.MakeSADCSArray(*sa2)
+	gvcsa := gvcsa.MakeGVCSArray(*sa2)
+	fmt.Println(size.Of(str))
+	fmt.Println(size.Of(sa2))
+	fmt.Println(size.Of(rlfmi))
+	fmt.Println(size.Of(wtfmi))
+	fmt.Println(size.Of(sadcsa))
+	fmt.Println(size.Of(gvcsa))
+}
 
 ////
 //var alphabet = 26

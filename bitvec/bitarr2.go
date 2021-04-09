@@ -57,9 +57,8 @@ func ToBitArr(val uint) BitArr {
 		blockSize += 1
 	}
 	arr := make([]uint32, blockSize)
-	base := uint(1 << 32)
 	for i := blockSize - 1; i >= 0; i-- {
-		arr[i] = uint32(cval % base)
+		arr[i] = uint32(cval - cval>>32<<32)
 		cval = cval >> 32
 	}
 	return BitArr{arr: arr, length: blockSize * 32}

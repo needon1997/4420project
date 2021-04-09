@@ -31,19 +31,19 @@ func (this *SuffixArray) ToRLFMI() *RLFMI {
 	n := len(this.Text)
 	log2N := int(math.Ceil(math.Pow(math.Log2(float64(n)), 2)))
 	//_ = int(math.Ceil(math.Log2(float64(n + 1))))
-	SASample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
+	SASample := make(map[uint32]uint32, int(math.Ceil(float64(n))/float64(log2N))+1)
 	for i := 0; i < n; i++ {
 		if this.POS[i]%log2N == 0 {
-			SASample[i] = this.POS[i]
+			SASample[uint32(i)] = uint32(this.POS[i])
 		}
 	}
-	InvSample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
+	InvSample := make(map[uint32]uint32, int(math.Ceil(float64(n))/float64(log2N))+1)
 	for i := 0; i < n; i++ {
 		if this.POS[i]%log2N == 0 && this.POS[i] > 0 {
-			InvSample[this.POS[i]] = i
+			InvSample[uint32(this.POS[i])] = uint32(i)
 		}
 		if this.POS[i] == n-1 {
-			InvSample[n-1] = i
+			InvSample[uint32(n-1)] = uint32(i)
 		}
 	}
 	return &RLFMI{length: len(this.Text), charMap: charMap, c: C, occ: occ, B: B, B1: B1, SASample: SASample, InvSample: InvSample, distinctChars: distinctChars}
@@ -132,16 +132,16 @@ func (this *SuffixArray) ToWTFMI() *WTFMI {
 	occ := waveletTree.NewWaveletTree(l, distinctString)
 	n := len(this.Text)
 	log2N := int(math.Ceil(math.Pow(math.Log2(float64(n)), 2)))
-	SASample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
-	InvSample := make(map[int]int, int(math.Ceil(float64(n))/float64(log2N))+1)
+	SASample := make(map[uint32]uint32, int(math.Ceil(float64(n))/float64(log2N))+1)
+	InvSample := make(map[uint32]uint32, int(math.Ceil(float64(n))/float64(log2N))+1)
 	for i := 0; i < n; i++ {
 		if this.POS[i]%log2N == 0 {
-			SASample[i] = this.POS[i]
-			InvSample[this.POS[i]] = i
+			SASample[uint32(i)] = uint32(this.POS[i])
+			InvSample[uint32(this.POS[i])] = uint32(i)
 
 		}
 		if this.POS[i] == n-1 {
-			InvSample[n-1] = i
+			InvSample[uint32(n-1)] = uint32(i)
 		}
 	}
 	return &WTFMI{charMap: charMap, c: c, occ: occ, length: len(this.Text), SASample: SASample, InvSample: InvSample}

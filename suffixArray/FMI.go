@@ -6,8 +6,8 @@ import (
 )
 
 type WTFMI struct {
-	SASample  map[int]int
-	InvSample map[int]int
+	SASample  map[uint32]uint32
+	InvSample map[uint32]uint32
 	length    int
 	charMap   map[byte]int
 	c         []int
@@ -22,12 +22,12 @@ func (this *WTFMI) Substring(start int, end int) string {
 	r := 0
 	var a int
 	for {
-		a1, ok := this.InvSample[end]
+		a1, ok := this.InvSample[uint32(end)]
 		if !ok {
 			end = end + 1
 			r++
 		} else {
-			a = a1
+			a = int(a1)
 			break
 		}
 	}
@@ -45,12 +45,12 @@ func (this *WTFMI) Substring(start int, end int) string {
 func (this *WTFMI) Locate(index int) int {
 	v := 0
 	for {
-		i, ok := this.SASample[index]
+		i, ok := this.SASample[uint32(index)]
 		if !ok {
 			index, _ = this.LF(index)
 			v++
 		} else {
-			return i + v
+			return int(i) + v
 		}
 	}
 }
@@ -84,8 +84,8 @@ func (this *WTFMI) Search(pattern string) int {
 }
 
 type RLFMI struct {
-	SASample      map[int]int
-	InvSample     map[int]int
+	SASample      map[uint32]uint32
+	InvSample     map[uint32]uint32
 	length        int
 	charMap       map[byte]int
 	c             []int
@@ -104,12 +104,12 @@ func (this *RLFMI) Substring(start int, end int) string {
 	r := 0
 	var a int
 	for {
-		a1, ok := this.InvSample[end]
+		a1, ok := this.InvSample[uint32(end)]
 		if !ok {
 			end = end + 1
 			r++
 		} else {
-			a = a1
+			a = int(a1)
 			break
 		}
 	}
@@ -127,12 +127,12 @@ func (this *RLFMI) Substring(start int, end int) string {
 func (this *RLFMI) Locate(index int) int {
 	v := 0
 	for {
-		i, ok := this.SASample[index]
+		i, ok := this.SASample[uint32(index)]
 		if !ok {
 			index, _ = this.LF(index)
 			v++
 		} else {
-			return i + v
+			return int(i) + v
 		}
 	}
 }
