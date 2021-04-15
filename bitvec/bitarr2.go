@@ -19,7 +19,7 @@ func NewBitArrBySize(n int) *BitArr {
 
 func NewBitArr(bitString string) (*BitArr, error) {
 	l := len(bitString)
-	size := int(math.Ceil(float64(l) / float64(8)))
+	size := int(math.Ceil(float64(l) / float64(32)))
 	barr := BitArr{arr: make([]uint32, size), length: l}
 	for i := 0; i < l; i++ {
 		if bitString[i] == 48 {

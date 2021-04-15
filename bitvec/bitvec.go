@@ -139,10 +139,12 @@ func (this *BasicBitVector) Rank1(index int) int {
 		rank2 = this.subBlockRank.GetValueInRange((b*this.subBlockNum+c-1)*this.subBlockRankBitsNum, (b*this.subBlockNum+c)*this.subBlockRankBitsNum-1)
 	}
 	var rank3 uint = 0
-	for i := 0; i < by; i++ {
-		rank3 += uint(this.popc[uint8(this.bitArr.arr[c+b*this.subBlockNum]>>(24-i*8))])
+	if k != 0 {
+		for i := 0; i < by; i++ {
+			rank3 += uint(this.popc[uint8(this.bitArr.arr[c+b*this.subBlockNum]>>(24-i*8))])
+		}
+		rank3 += uint(this.popc[uint8(this.bitArr.arr[c+b*this.subBlockNum]>>(24-by*8))>>(8-r)])
 	}
-	rank3 += uint(this.popc[uint8(this.bitArr.arr[c+b*this.subBlockNum]>>(24-by*8))>>(8-r)])
 	return int(rank1) + int(rank2) + int(rank3)
 }
 func NewBasicBitVec(b *BitArr) *BasicBitVector {
